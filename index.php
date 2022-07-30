@@ -43,10 +43,10 @@
 
 </html>
 <?php
-phpinfo();
-for ($i = 0; $i < $_REQUEST['number']; $i++) {
-    echo '<b>' . $i . '</b>' . '</br>';
-}
+// phpinfo();
+// for ($i = 0; $i < $_REQUEST['number']; $i++) {
+//     echo '<b>' . $i . '</b>' . '</br>';
+// }
 
 /**
  * Shows the input name on screen
@@ -54,10 +54,15 @@ for ($i = 0; $i < $_REQUEST['number']; $i++) {
  * @param string input from the user
  * @return 34 integer
  */
-function allo($name)
-{
-    echo 'Allo ' . $name;
-    return 34;
-}
+// function allo($name)
+// {
+//     echo 'Allo ' . $name;
+//     return 34;
+// }
 
-allo('jair');
+// allo('jair');
+
+// $sentence = "This is a typical English sentence.";
+// //echo strtr($sentence, 'ie', 'XY'); //replace i by X, replace e by Y
+
+// echo strtr($sentence, ['is' => 'XY']);//replace is by XY
