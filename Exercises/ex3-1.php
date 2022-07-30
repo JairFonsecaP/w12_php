@@ -1,6 +1,14 @@
 <?php
 /* EXERCISE 3-1A and 3-1B */
-
+const COMPANY_LOGO = 'web-site-icon.jpg';
+const COMPANY_NAME = 'ClassicModels.com';
+const COMPANY_STREET_ADDRESS = '5340 St-Laurent';
+const COMPANY_CITY = 'Montréal';
+const COMPANY_PROVINCE = 'QC';
+const COMPANY_COUNTRY = 'Canada';
+const COMPANY_POSTAL_CODE = 'J0P 1T0';
+const PHONE_NUMBER = '+1 (514)-345-6789';
+const EMAIL = 'info@classicmodels.com';
 /* web page variable properties */
 $lang = 'en-CA';
 $title = 'ClassicModels.com - Home Page';
@@ -21,7 +29,7 @@ $content = 'bla bla bla bla bla this is the page content';
 
     <!--IMPORTANT for responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="icon" href="<?php echo COMPANY_LOGO ?>">
     <style>
         header {
             background-color: black;
@@ -48,6 +56,7 @@ $content = 'bla bla bla bla bla this is the page content';
     <!-- PAGE HEADER -->
     <header>
         <h2>
+            <img src="<?php echo COMPANY_LOGO ?>" alt="" />
             ClassicModels.com
         </h2>
     </header>
@@ -63,6 +72,10 @@ $content = 'bla bla bla bla bla this is the page content';
     <!-- FOOTER -->
     <footer>
         Designed by <?php echo $author ?> &copy;<br>
+        <?php echo COMPANY_NAME ?> </br>
+        <?php echo COMPANY_STREET_ADDRESS . " " . COMPANY_CITY  . " " . COMPANY_PROVINCE  . " " . COMPANY_POSTAL_CODE ?> </br>
+        <?php echo PHONE_NUMBER . ' | ' . EMAIL ?>
+
     </footer>
     </div>
 </body>
