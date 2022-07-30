@@ -30,7 +30,7 @@ $content = 'bla bla bla bla bla this is the page content';
 
     <!--IMPORTANT for responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="<?= COMPANY_LOGO; ?>">
+    <link rel="icon" href="<?= COMPANY_LOGO; ?>" type="image/jpeg">
     <style>
         header {
             background-color: black;
