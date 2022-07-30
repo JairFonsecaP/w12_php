@@ -12,8 +12,13 @@
     <h1>First page</h1>
     <?php
     // $name = 'Jair'; // New variable
-    $name = $_REQUEST['name']; // Reads input value
-    echo 'My name is ' . $name; // Prints in the screen
+    // Reads input value
+    if (isset($_REQUEST['name'])) {
+        $name = $_REQUEST['name'];
+        echo 'My name is ' . $name; // Prints in the screen
+    } else {
+        echo 'No name input recived';
+    }
     ?>
     <br>
     <h1>First PHP file</h1>
