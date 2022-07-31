@@ -39,25 +39,28 @@ $products = [
 
 <body>
     <table>
-        <tr>
+        <thead>
+            <tr>
+                <?php
+                foreach ($products[0] as $key => $value) {
+                    $key = ucwords($key);
+                    echo "<th>$key</th>";
+                }
+                ?>
+            </tr>
+        </thead>
+        <tbody>
             <?php
-            foreach ($products[0] as $key => $value) {
-                $key = ucwords($key);
-                echo "<th>$key</th>";
+            foreach ($products as $product) {
+                echo "<tr>";
+                foreach ($product as $value) {
+                    echo "<td>$value</td>";
+                }
+                echo "</tr>";
             }
             ?>
-        </tr>
-        <?php
-        foreach ($products as $product) {
-            echo "<tr>";
-            foreach ($product as $value) {
-                echo "<td>$value</td>";
-            }
-            echo "</tr>";
-        }
-        ?>
 
-
+        </tbody>
     </table>
 </body>
 
