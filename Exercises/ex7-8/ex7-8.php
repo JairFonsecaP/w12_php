@@ -10,6 +10,7 @@ const COMPANY_COUNTRY = 'Canada';
 const COMPANY_POSTAL_CODE = 'J0P 1T0';
 const PHONE_NUMBER = '+1 (514)-345-6789';
 const EMAIL = 'info@manchesterunitedcanada.com';
+const PATH = 'products_images';
 /* web page variable properties */
 $lang = 'en-CA';
 $title = 'ManchesterUnitedCanada.com - Home Page';
@@ -107,28 +108,46 @@ function productsList()
 
     <!-- NAVIGATION BAR-->
     <nav>
-        <a href='ex7-8.php'>Product List</a>
+        <a href='ex7-8.php?op=1'>Product List</a>
         |
-        <a href='ex7-8.php'>Product Catalog</a>
+        <a href='ex7-8.php?op=2'>Product Catalog</a>
     </nav>
 
     <!-- CONTENT -->
     <main>
-        <table>
-            <thead>
-                <tr>
-                    <?php
-                    foreach ($products[0] as $key => $_) {
-                        echo "<th>$key</th>";
-                    }
+        <?php
+        if (!isset($_REQUEST['op']) or $_REQUEST['op'] == 1) { ?>
+            <table>
+                <thead>
+                    <tr>
+                        <?php
+                        foreach ($products[0] as $key => $_) {
+                            echo "<th>$key</th>";
+                        }
+                        ?>
 
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    productsList()
                     ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?= productsList() ?>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        <?php } else {
+            foreach ($products as $product) {
+                if ($product['price'] <= 0) {
+                    continue;
+                }
+                $output = '<div class="product"><img src="' . PATH . '/' . $product['pic'] . '" alt="' . $product['description'] . '" title="' . $product['description'] . '">';
+                $output .= '<p class="name ">' . $product['name'] . '</p><p class="description">' . $product['description'] . '</p><p class="price">' . $product['price'] . '</p>';
+                $output .= '</div>';
+
+                echo $output;
+            }
+        }
+        ?>
+
     </main>
 
 
