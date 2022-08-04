@@ -47,18 +47,20 @@ if (isset($_REQUEST['selection'])) {
     <nav>
         <ul>
             <?php
-            function select($value)
+
+            function makeLi($item)
             {
                 global $selected;
-                $selected = $value;
-            }
-            foreach ($nav_items as $key => $item) {
-                if ($key == $selected) {
-                    echo '<li class="selected"><a href="">' . $item . '</a></li>';
-                    continue;
+                if ($item == $selected) {
+                    return '<li class="selected"><a href="#">' . $item . '</a></li>';
+                } else {
+                    return '<li class="menu-item"><a href="ex6-1.php?selection=' . $item . '">' . $item . '</a></li>';
                 }
-                echo '<li class="menu-item"><a href="ex6-1.php?selection=' . $key . '">' . $item . '</a></li>';
             }
+
+            $list_li = array_map('makeLi', $nav_items);
+
+            echo implode(' ', $list_li)
             ?>
         </ul>
     </nav>

@@ -2,7 +2,7 @@
 
 function getLetterGrade(float $grade): string
 {
-    if ($grade < 100 && $grade >= 90) {
+    if ($grade <= 100 && $grade >= 90) {
         return "A";
     } elseif ($grade < 90 && $grade >= 80) {
         return "B";
@@ -20,10 +20,15 @@ const normalCost = 0.05;
 const extraCost = 0.03;
 function getPicturesCost(int $nbPics): float
 {
-    $value = normalCost * $nbPics;
+    $value = 0;
 
     if ($nbPics > 100) {
+        $temp = normalCost * 100;
+        $value += $temp;
         $temp = ($nbPics - 100) * extraCost;
+        $value += $temp;
+    } else {
+        $temp = normalCost * $nbPics;
         $value += $temp;
     }
 

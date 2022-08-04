@@ -50,10 +50,6 @@ $forecasts = [
             border: 1px solid darkgrey;
             padding: 5px;
         }
-
-        td {
-            display: flex;
-        }
     </style>
 
 </head>
@@ -68,9 +64,9 @@ $forecasts = [
 
                 <?php
                 foreach ($forecasts as $key => $value) {
-                    $img = '<img src="weather_images/' . $value['image_file'] . '" alt="' . $value['image_desc'] . '"/>';
+                    $img = '<img src="weather_images/' . $value['image_file'] . '" alt="' . $value['image_desc'] . '" title="' . $value['image_desc'] . '"/>';
                     $temperature = $value['temperature'];
-                    $td = '<td><p>' . $key . '</p>' . $img . '<p>' . $temperature . '</p></td>';
+                    $td = '<td>' . $key . '</td><td>' . $img . '</td><td>' . $temperature . '</td>';
                     echo '<tr>' . $td . '</tr>';
                 }
                 ?>
