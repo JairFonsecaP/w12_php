@@ -11,6 +11,8 @@ const COMPANY_POSTAL_CODE = 'J0P 1T0';
 const PHONE_NUMBER = '+1 (514)-345-6789';
 const EMAIL = 'info@manchesterunitedcanada.com';
 const PATH = 'products_images';
+const VISITOR_LOG_FILE =  'visitors.log';
+const LOG_DIRECTORY = 'log';
 /* web page variable properties */
 $lang = 'en-CA';
 $title = 'ManchesterUnitedCanada.com';
@@ -111,24 +113,16 @@ function productsCataloge()
     $content = $output;
 }
 
-if (!isset($_REQUEST['op'])) {
-    $_REQUEST['op'] = 1;
-}
 
-if ($_REQUEST['op'] == 1) {
-    productsList();
-} else if ($_REQUEST['op'] == 2) {
-    productsCataloge();
-}
 
 
 function counterFile()
 {
     global $counter;
-    $file_path = getcwd() . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+    $file_path = getcwd() . DIRECTORY_SEPARATOR . LOG_DIRECTORY . DIRECTORY_SEPARATOR;
 
-    if (!file_exists('log')) {
-        mkdir('log');
+    if (!file_exists(LOG_DIRECTORY)) {
+        mkdir(LOG_DIRECTORY);
     }
     if ($_REQUEST['op'] == 1) {
         $file_path .= 'log_visit_list_products.txt';
@@ -148,7 +142,24 @@ function counterFile()
     file_put_contents($file_path, $counter);
 }
 
+function logVisitor()
+{
+    $f = fopen(LOG_DIRECTORY . DIRECTORY_SEPARATOR . VISITOR_LOG_FILE, "a");
+    fwrite($f, date(DATE_RFC2822) . PHP_EOL);
+    fclose($f);
+}
+
 counterFile();
+logVisitor();
+if (!isset($_REQUEST['op'])) {
+    $_REQUEST['op'] = 1;
+}
+
+if ($_REQUEST['op'] == 1) {
+    productsList();
+} else if ($_REQUEST['op'] == 2) {
+    productsCataloge();
+}
 ?>
 
 
