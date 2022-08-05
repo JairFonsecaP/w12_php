@@ -17,6 +17,7 @@ $title = 'ManchesterUnitedCanada.com';
 $description = 'Scale Models of Classic Cars, Trucks, Planes, Motorcyles and more';
 $author = 'Stéphane Lapointe';
 $content = 'Invalid operation';
+$counter = 0;
 
 $products = [
     [
@@ -119,7 +120,38 @@ if ($_REQUEST['op'] == 1) {
 } else if ($_REQUEST['op'] == 2) {
     productsCataloge();
 }
+
+
+function counterFile()
+{
+    global $counter;
+    $file_path = getcwd() . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+
+    if (!file_exists('log')) {
+        mkdir('log');
+    }
+    if ($_REQUEST['op'] == 1) {
+        $file_path .= 'log_visit_list_products.txt';
+        if (!file_exists($file_path)) {
+            file_put_contents($file_path, $counter);
+        }
+
+        $counter = file_get_contents($file_path);
+    } else if ($_REQUEST['op'] == 2) {
+        $file_path .= 'log_visit_catalog_products.txt';
+        if (!file_exists($file_path)) {
+            file_put_contents($file_path, $counter);
+        }
+        $counter = file_get_contents($file_path);
+    }
+    $counter++;
+    file_put_contents($file_path, $counter);
+}
+
+counterFile();
 ?>
+
+
 
 <!-- WEB PAGE TEMPLATE BELOW ========================== -->
 <!DOCTYPE html>
@@ -167,7 +199,8 @@ if ($_REQUEST['op'] == 1) {
         Designed by <?= $author; ?> &copy;<br>
         <?= COMPANY_NAME; ?> </br>
         <?= COMPANY_STREET_ADDRESS . " " . COMPANY_CITY  . " " . COMPANY_PROVINCE  . " " . COMPANY_POSTAL_CODE; ?> </br>
-        <?= PHONE_NUMBER . ' | ' . EMAIL; ?>
+        <?= PHONE_NUMBER . ' | ' . EMAIL; ?> </br>
+        View: <?= $counter ?>
 
     </footer>
     </div>
