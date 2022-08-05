@@ -1,0 +1,31 @@
+/* Exercise 3.1's styles */
+
+header {
+    background-color: black;
+    color: white;
+    padding: 10px;
+}
+
+nav {
+    background-color: grey;
+    color: white;
+    padding: 10px;
+}
+
+footer {
+    background-color: black;
+    color: white;
+    padding: 10px
+}
+
+/* Exercise 7-8 */
+
+table {
+    border: black 1px solid;
+    margin: 10px;
+}
+
+td,th{
+            border: black 1px solid;
+            padding: 5px;
+        }
