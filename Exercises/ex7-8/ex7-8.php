@@ -13,9 +13,10 @@ const EMAIL = 'info@manchesterunitedcanada.com';
 const PATH = 'products_images';
 /* web page variable properties */
 $lang = 'en-CA';
-$title = 'ManchesterUnitedCanada.com - Home Page';
+$title = 'ManchesterUnitedCanada.com';
 $description = 'Scale Models of Classic Cars, Trucks, Planes, Motorcyles and more';
 $author = 'Stéphane Lapointe';
+$content = 'Invalid operation';
 
 $products = [
     [
@@ -71,12 +72,52 @@ $products = [
 function productsList()
 {
     global $products;
-    foreach ($products as $product) {
-        $output = "<tr><td>" . $product['id'] . "</td><td>" . $product['name'] . "</td><td>";
-        $output .= $product['description'] . "</td><td>" . $product['price'] . "</td><td>" . $product['pic'];
-        $output .= "</td><td>" . $product['qty_in_stock'] . "</td><tr>";
-        echo $output;
+    global $title;
+    global $content;
+
+    $title = 'Product List - ' . COMPANY_NAME;
+
+    $output = '<h2>Product list</h2> <table><thead><tr>';
+    foreach ($products[0] as $key => $_) {
+        $output .= "<th>$key</th>";
     }
+    $output .= '</tr></thead><tbody>';
+    foreach ($products as $product) {
+        $output .= "<tr><td>" . $product['id'] . "</td><td>" . $product['name'] . "</td><td>";
+        $output .= $product['description'] . "</td><td>" . $product['price'] . "</td><td>" . $product['pic'];
+        $output .= "</td><td>" . $product['qty_in_stock'] . '</td>';
+    }
+    $output .= ' </tbody></table>';
+    $content = $output;
+}
+function productsCataloge()
+{
+    global $products;
+    global $title;
+    global $content;
+
+    $title = 'Product Catalog - ' . COMPANY_NAME;
+
+    $output = '';
+    foreach ($products as $product) {
+        if ($product['price'] <= 0) {
+            continue;
+        }
+        $output .= '<div class="product"><img src="' . PATH . '/' . $product['pic'] . '" alt="' . $product['description'] . '" title="' . $product['description'] . '">';
+        $output .= '<p class="name ">' . $product['name'] . '</p><p class="description">' . $product['description'] . '</p><p class="price">' . $product['price'] . '</p>';
+        $output .= '</div>';
+    }
+    $content = $output;
+}
+
+if (!isset($_REQUEST['op'])) {
+    $_REQUEST['op'] = 1;
+}
+
+if ($_REQUEST['op'] == 1) {
+    productsList();
+} else if ($_REQUEST['op'] == 2) {
+    productsCataloge();
 }
 ?>
 
@@ -101,7 +142,7 @@ function productsList()
     <!-- PAGE HEADER -->
     <header>
         <h2>
-            <img src="<?= COMPANY_LOGO; ?>" alt="" />
+            <img style="width: 50px" src="<?= COMPANY_LOGO; ?>" alt="Manchester United Home Jersey, red, sponsored by Chevrolet" />
             ManchesterUnitedCanada.com
         </h2>
     </header>
@@ -116,38 +157,8 @@ function productsList()
     <!-- CONTENT -->
     <main>
         <?php
-        if (!isset($_REQUEST['op']) or $_REQUEST['op'] == 1) { ?>
-            <table>
-                <thead>
-                    <tr>
-                        <?php
-                        foreach ($products[0] as $key => $_) {
-                            echo "<th>$key</th>";
-                        }
-                        ?>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    productsList()
-                    ?>
-                </tbody>
-            </table>
-        <?php } else {
-            foreach ($products as $product) {
-                if ($product['price'] <= 0) {
-                    continue;
-                }
-                $output = '<div class="product"><img src="' . PATH . '/' . $product['pic'] . '" alt="' . $product['description'] . '" title="' . $product['description'] . '">';
-                $output .= '<p class="name ">' . $product['name'] . '</p><p class="description">' . $product['description'] . '</p><p class="price">' . $product['price'] . '</p>';
-                $output .= '</div>';
-
-                echo $output;
-            }
-        }
+        echo $content;
         ?>
-
     </main>
 
 
