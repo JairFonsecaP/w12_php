@@ -29,7 +29,7 @@ class users
         $pageData = DEFAULT_PAGE_DATA;
         $pageData['title'] = "Registration - " . COMPANY_NAME;
         $PageData['description'] = 'Registration form to join us';
-        $error = $errorMessage !== null ? '<p class="alert primary">' . $errorMessage . '</p><br/>' : "";
+        $error = $errorMessage !== null ? '<p class="alert alert-danger">' . $errorMessage . '</p><br/>' : "";
 
         $provinces = [
             ['id' => 0, 'code' => 'QC', 'name' => 'Québec'],
@@ -74,7 +74,7 @@ class users
 
         $content = <<< HTML
         <h2>Registration</h2>
-        <form class="form control" action="index.php" method="POST" style="width: 300px; border: 1px solid black; margin: 30px auto; padding: 10px; border-radius: 1px;">
+        <form class="form-control" action="index.php" method="POST" style="width: 300px; border: 1px solid black; margin: 30px auto; padding: 10px; border-radius: 1px;">
         {$error}
         <input type="hidden" value="4" name="op" />
             <label for="fullname">Name:</label>
