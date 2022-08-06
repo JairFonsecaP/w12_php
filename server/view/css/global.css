@@ -29,3 +29,16 @@ td,th{
             border: black 1px solid;
             padding: 5px;
         }
+
+.error-message{
+    background-color: rgb(221, 61, 70);
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 5px
+}
+
+.buttons-login{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-around;
+}

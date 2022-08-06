@@ -39,6 +39,21 @@ function counterCatalogeProducts($pageData): int
 function logVisitor()
 {
     $f = fopen(LOG_DIRECTORY . DIRECTORY_SEPARATOR . VISITOR_LOG_FILE, "a");
-    fwrite($f, date(DATE_RFC2822) . PHP_EOL);
+    fwrite($f, date(DATE_RFC2822) . " " . $_SERVER['REMOTE_ADDR']  . PHP_EOL);
     fclose($f);
+}
+
+function checkInput(string $name, int $maxlength = 0)
+{
+
+    if (isset($_REQUEST[$name])) {
+        if ($maxlength <= 0 || strlen($_REQUEST[$name]) > $maxlength) {
+            header('HTTP/1.0 400 Input ' . $name . ' too long');
+            exit('Input ' . $name . ' too long');
+        }
+        return $_REQUEST[$name];
+    } else {
+        header('HTTP/1.0 400 Input ' . $name . ' missing ont the login form in user.php');
+        exit('Input ' . $name . ' missing ont the login form in user.php');
+    }
 }

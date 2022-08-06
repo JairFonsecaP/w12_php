@@ -3,6 +3,8 @@ require_once 'globals.php';
 require_once 'tools.php';
 require_once 'view/webpage.php';
 require_once 'products.php';
+require_once 'users.php';
+
 function main()
 {
     $op = 0;
@@ -14,9 +16,35 @@ function main()
     switch ($op) {
         case 0:
             $pageData = DEFAULT_PAGE_DATA;
+            $pageData['lang'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
             $pageData['title'] = "Home - " . COMPANY_NAME;
-            $pageData['content'] = '<h2 style="color:red">Welcome to Manchester United Canada!</h2>';
+            switch ($pageData['lang']) {
+                case 'en':
+                    $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
+                    break;
+                case 'fr':
+                    $pageData['content'] = "<h1>Bienvenue! Ceci est la page d'eacceuel!</h1>";
+                    break;
+                case 'es':
+                    $pageData['content'] = "<h1>Bienvenido! Esta es la pagina principal!</h1>";
+                    break;
+                default:
+                    $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
+            }
+            //$pageData['content'] = '<h2 style="color:red">Welcome to Manchester United Canada!</h2>';
             webpage::render($pageData);
+            break;
+        case 1:
+            users::login();
+            break;
+        case 2:
+            users::loginVerify();
+            break;
+        case 3:
+            users::register();
+            break;
+        case 4:
+            users::registerVerify();
             break;
         case 50:
             //file download from server to client
@@ -47,4 +75,5 @@ function main()
             }
     }
 }
+
 main();

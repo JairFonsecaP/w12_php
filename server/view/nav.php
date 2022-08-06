@@ -10,6 +10,10 @@
     |
     <a href='index.php?op=51'>Redirect</a>
     |
+    <a href='index.php?op=1'>Login</a>
+    |
+    <a href='index.php?op=3'>Register</a>
+    |
 </nav>
 <!-- CONTENT -->
 <main>
