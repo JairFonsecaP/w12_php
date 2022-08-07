@@ -63,7 +63,7 @@ class users
 
         $provinceSelect = "";
         foreach ($provinces as $province) {
-            $provinceSelect .= '<option value="' . $province['code'] . '" ' . ($previous_data['province'] !== "" && $previous_data['province'] === $province['code'] ? " selected " : "") . '>' . $province['name'] . "</option>";
+            $provinceSelect .= '<option class="form-control" value="' . $province['code'] . '" ' . ($previous_data['province'] !== "" && $previous_data['province'] === $province['code'] ? " selected " : "") . '>' . $province['name'] . "</option>";
         }
 
         $languagesRadio = "";
@@ -74,28 +74,28 @@ class users
 
         $content = <<< HTML
         <h2>Registration</h2>
-        <form class="form-control" action="index.php" method="POST" style="width: 300px; border: 1px solid black; margin: 30px auto; padding: 10px; border-radius: 1px;">
+        <form  action="index.php" method="POST" style="width: 300px; border: 1px solid black; margin: 30px auto; padding: 10px; border-radius: 1px;">
         {$error}
         <input type="hidden" value="4" name="op" />
-            <label for="fullname">Name:</label>
-                <input type="text" name="fullname" id="fullname" maxlength="50" required placeholder="Fistname and lastname" value="{$previous_data['fullname']}" autofocus /><br/>
-            <label for="address">Address:</label>
-                <input type="text" name="address_one" id="address" maxlength="255" value="{$previous_data['address_one']}" placeholder="Address Line 1"/><br/>
-                <input type="text" name="address_two" id="address" maxlength="255" value="{$previous_data['address_two']}" placeholder="Address Line 2"/><br/>
+        <h3>General Information</h3>
+                <input class="form-control" type="text" name="fullname" id="fullname" maxlength="50" required placeholder="Fistname and lastname" value="{$previous_data['fullname']}" autofocus /><br/>
+            <label for="address">Address (Optional):</label>
+                <input class="form-control" type="text" name="address_one" id="address" maxlength="255" value="{$previous_data['address_one']}" placeholder="Address Line 1"/><br/>
+                <input class="form-control" type="text" name="address_two" id="address" maxlength="255" value="{$previous_data['address_two']}" placeholder="Address Line 2"/><br/>
             <label for="city">City:</label>
-                <input type="text" name="city" maxlength="50" placeholder="Chambly" value="{$previous_data['city']}"/><br/>
+                <input class="form-control" type="text" name="city" maxlength="50" placeholder="Chambly" value="{$previous_data['city']}"/><br/>
             <label for="province">Province:</label>
-                <select name="province" id="province">
+                <select class="form-select" name="province" id="province">
                 {$provinceSelect}
                 </select><br/>
             <label for="postal_code">Postal code:</label>
-                <input name="postal_code" id="postal_code" placeholder="ex. A1B-2C3" maxlength="7" value="{$previous_data['postal_code']}" minlength="7" /><br/>
-            <h3>Language</h3>
-            $languagesRadio <input type="text" name="other_lang" value="{$previous_data['other_lang']}"/>
-            <h2>Connectin info (required)</h2>
-            <input type="email" name="email" maxlength="126" required placeholder="Email" value="{$previous_data['email']}"><br/>
-            <input type="password" name="pw" maxlength="8" minlength="8" required placeholder="password - must be 8 char." /><br/>
-            <input type="password" name="pw2" maxlength="8" minlength="8" required placeholder="repeat password" /><br/>
+                <input class="form-control" name="postal_code" id="postal_code" placeholder="ex. A1B-2C3" maxlength="7" value="{$previous_data['postal_code']}" minlength="7" /><br/>
+            <h5>Language</h5>
+            $languagesRadio <input class="form-control" type="text" name="other_lang" value="{$previous_data['other_lang']}"/>
+            <h4>Connectin info (required)</h4>
+            <input class="form-control" type="email" name="email" maxlength="126" required placeholder="Email" value="{$previous_data['email']}"><br/>
+            <input class="form-control" type="password" name="pw" maxlength="8" minlength="8" required placeholder="password - must be 8 char." /><br/>
+            <input class="form-control" type="password" name="pw2" maxlength="8" minlength="8" required placeholder="repeat password" /><br/>
             <input type="checkbox" name="spam_ok" id="spam_ok" value="1" checked /><label for="spam_ok">I accept to periodically receive information about new products</label><br/>
             <button type="submit" class="btn btn-primary">Continue</button>
         </form>
@@ -117,6 +117,7 @@ HTML;
         ];
 
         $fullname = checkInput('fullname', 50);
+        //$address_one = checkInput('address_one', 255);
         $email = checkInput('email', 126);
         $language = checkInput('language', 5);
         $pw = checkInput('pw', 8);
