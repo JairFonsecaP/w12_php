@@ -7,14 +7,14 @@ require_once 'users.php';
 
 function main()
 {
-    $op = 0;
+    $op = ROUTES['default'];
     logVisitor();
     if (isset($_REQUEST['op'])) {
         $op = $_REQUEST['op'];
     }
 
     switch ($op) {
-        case 0:
+        case ROUTES['default']:
             $pageData = DEFAULT_PAGE_DATA;
             $pageData['lang'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
             $pageData['title'] = "Home - " . COMPANY_NAME;
@@ -34,19 +34,19 @@ function main()
             //$pageData['content'] = '<h2 style="color:red">Welcome to Manchester United Canada!</h2>';
             webpage::render($pageData);
             break;
-        case 1:
+        case ROUTES['login']:
             users::login();
             break;
-        case 2:
+        case ROUTES['login-verify']:
             users::loginVerify();
             break;
-        case 3:
+        case ROUTES['register']:
             users::register();
             break;
-        case 4:
+        case ROUTES['register-verify']:
             users::registerVerify();
             break;
-        case 50:
+        case ROUTES['download-file']:
             //file download from server to client
             // set the file type, here a PDF file, see link below for other file types
             header('Content-type: application/pdf');
@@ -55,14 +55,14 @@ function main()
             // send out the file, read and send directly with readfile() function
             readfile('some_file.pdf');
             break;
-        case 51:
+        case ROUTES['redirect-amazon']:
             //redirect to amazon.ca
             header('location: https://www.amazon.ca/ ');
             break;
-        case 100:
+        case ROUTES['product-list']:
             products::productsList();
             break;
-        case 101:
+        case ROUTES['product-cataloge']:
             products::productsCataloge();
             break;
         default: {

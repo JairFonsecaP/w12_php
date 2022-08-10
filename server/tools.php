@@ -53,7 +53,7 @@ function checkInput(string $name, int $maxlength = 0)
         }
         return $_REQUEST[$name];
     } else {
-        header('HTTP/1.0 400 Input ' . $name . ' missing ont the login form in user.php');
-        exit('Input ' . $name . ' missing ont the login form in user.php');
+        header('HTTP/1.0 400 Input ' . $name . ' missing');
+        exit('Input ' . $name . ' missing');
     }
 }

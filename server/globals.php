@@ -23,3 +23,17 @@ const DEFAULT_PAGE_DATA = [
     'content' => 'Default content - must be set before display !',
     'viewCounter' => 0
 ];
+
+/*ROUTES */
+
+const ROUTES = [
+    'default' => 0,
+    'login' => 1,
+    'login-verify' => 2,
+    'register' => 3,
+    'register-verify' => 4,
+    'download-file' => 50,
+    'redirect-amazon' => 51,
+    'product-list' => 100,
+    'product-cataloge' => 101,
+];
