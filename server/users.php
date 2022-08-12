@@ -5,17 +5,35 @@ class users
 
     public static function login(string $errorMessage = null)
     {
+        if (!isset($_SESSION['loginCount'])) {
+            $_SESSION['loginCount'] = 0;
+        }
+
+        $_SESSION['loginCount']++;
+
+        if ($_SESSION['loginCount'] > MAX_LOGIN_ATTEMPS) {
+            $error = "You have exceeded the maximum number of attempts, please wait";
+            $pageData = DEFAULT_PAGE_DATA;
+            $pageData['title'] = "Try later - " . COMPANY_NAME;
+            $PageData['description'] = 'Try later';
+            $pageData['content'] = '<div class="alert alert-danger mt-2 mb-2 ms-1 me-1" role="alert">
+                                        Try again later
+                                    </div>';
+            webpage::render($pageData);
+        }
+
         $pageData = DEFAULT_PAGE_DATA;
         $pageData['title'] = "Login - " . COMPANY_NAME;
         $PageData['description'] = 'Connect to track to shop and trarck your order and more';
+        $option = ROUTES['login-verify'];
 
-        $error = $errorMessage !== null ? '<p class="error-message">' . $errorMessage . '</p><br/>' : "";
+        $error = $errorMessage !== null ? '<div class="alert alert-danger" role="alert">' . $errorMessage . '</div>' : "";
 
         $content = <<< HTML
         <h2>Please connect</h2>
         <form action="index.php" method="POST" style="width: 350px; border: 1px solid black; margin: 30px auto; padding: 10px; border-radius: 1px;">
         {$error}
-        <input type="hidden" value="' . ROUTES['login-verify'] . '" name="op" />
+        <input type="hidden" value="{$option}" name="op" />
         <lable class="form-label" for="email">Email: </lable><input class="form-control" type="email" id="email" name="email" required maxlength="126" autofocus /><br/>
         <lable class="form-label" for="pw">Password: </label><input class="form-control" type="password" id="pw" name="pw" required maxlength="8" placeholder="max 8 characters" /><br/>
         <div class="buttons-login"><button class="btn btn-primary">Continue</button>
@@ -29,12 +47,16 @@ HTML;
         webpage::render($pageData);
     }
 
-    public static function register($errorMessage = null, $previous_data = [])
+    public static function register(array $errorsMsg = [], array $previous_data = [])
     {
-        $pageData = DEFAULT_PAGE_DATA;
-        $pageData['title'] = "Registration - " . COMPANY_NAME;
-        $PageData['description'] = 'Registration form to join us';
-        $error = $errorMessage !== null ? '<p class="alert alert-danger">' . $errorMessage . '</p><br/>' : "";
+        $errorLabel = '';
+        if ($errorsMsg !== []) {
+            foreach ($errorsMsg as $key => $error) {
+                $errorLabel .= <<< HTML
+                <p class="alert alert-danger"><b>{$key}: </b>{$error}</p><br/>
+            HTML;
+            }
+        }
 
         $provinces = [
             ['id' => 0, 'code' => 'QC', 'name' => 'Québec'],
@@ -99,8 +121,8 @@ HTML;
         $spam_checked = $previous_data["spam_ok"] ? "checked" : "";
         $content = <<< HTML
         <h2>Register as a new user</h2>
-        <form  action="index.php" method="POST" style="width: 400px; border: 1px solid black; margin: 30px auto; padding: 30px; border-radius: 1px;">
-        {$error}
+        <form enctype="multipart/form-data" action="index.php" method="POST" style="width: 400px; border: 1px solid black; margin: 30px auto; padding: 30px; border-radius: 1px;">
+        {$errorLabel}
         <input type="hidden" value="{$op}" name="op" />
 
         <div>
@@ -144,17 +166,60 @@ HTML;
                 <label class="form-check-label" for="spam_ok">I accept to periodically receive information about new products</label>
             </div>
 
+            <!-- file picture-->
+            <label class="form-label mt-3" for="my_picture">Select a picture:</label>
+            <input class="form-control" type="file" name="my_picture" id="my_picture" value="none" accept=".jpg, .png, .PNG, .gif, .GIF, .jpeg, .JPG"/>
+
             <!-- button to continue -->
             <button type="submit" class="btn btn-primary mt-3">Continue</button>
         </form>
-HTML;
+        HTML;
 
+        $pageData = DEFAULT_PAGE_DATA;
+        $pageData['title'] = "Registration - " . COMPANY_NAME;
+        $PageData['description'] = 'Registration form to join us';
         $pageData['content'] = $content;
         webpage::render($pageData);
     }
 
     public static function registerVerify()
     {
+        // if (!isset($_FILES['my_picture']) || $_FILES['my_picture'] === 'none') {
+        //     echo "No image selected";
+        // } elseif ($_FILES['my_picture']['error'] !== UPLOAD_ERR_OK) {
+        //     echo 'error in file upload';
+        // } elseif ($_FILES['my_picture']['size'] > 1000000) {
+        //     echo 'error file too big';
+        // } elseif (!getimagesize($_FILES['my_picture']['tmp_name'])) {
+        //     echo 'This file is not an image';
+        // } else {
+        //     $pathParts = pathinfo($_FILES['my_picture']['name']);
+        //     $ext = $pathParts['extension'];
+
+        //     if ($ext !== 'png' && $ext !== 'jpg' && $ext !== 'JPG' && $ext !== 'jpeg' && $ext != 'gif') {
+        //         echo 'image format not supported';
+        //     }
+
+        //     $target_file = 'user_images' . DIRECTORY_SEPARATOR . basename($_FILES['my_picture']['name']);
+        //     if (file_exists($target_file)) {
+        //         return 'This file already exists';
+        //     } else {
+        //         if (move_uploaded_file($_FILES['my_picture']['tmp_name'], $target_file)) {
+        //             echo 'file upladed OK';
+        //             echo '<img src="' . $target_file . '" alt="my picture"/>';
+        //         } else {
+        //             echo 'file xfer failed';
+        //         }
+        //     }
+        // }
+        $errorMsg = [];
+        $upload_image = Picture_Uploaded_Save_File('my_picture', 'user_images');
+        if ($upload_image !== 'OK') {
+            $errorMsg['Uploading image'] = $upload_image;
+        }
+
+
+
         $pageData = DEFAULT_PAGE_DATA;
         $pageData['title'] = "Registration - " . COMPANY_NAME;
 
@@ -176,33 +241,40 @@ HTML;
         $pw = checkInput('pw', 8);
         $pw2 = checkInput('pw2', 8);
 
+
+
         $userInfo = $_POST;
         $userInfo['spam_ok'] = isset($_POST['spam_ok']) ? $_POST['spam_ok'] : 0;
 
-        unset($userInfo['pw']);
-        unset($userInfo['pw2']);
+
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errorMsg['email'] = 'Email format is wrong';
+        }
 
         foreach ($users as $user) {
             if ($user['email'] === $email) {
-                $error = 'This email already in use, please select a different email.';
-                header("HTTP/1.0 400 $error");
-                self::register($error, $userInfo);
-                die();
+                $errorMsg['email used'] = 'This email already in use, please select a different email.';
             }
         }
 
         if ($pw !== $pw2) {
+            $errorMsg['password'] = 'Both password must be same';
+        }
+
+        if ($errorMsg !== '') {
             unset($userInfo['pw']);
             unset($userInfo['pw2']);
-            $error = 'Both password must be same';
-            header("HTTP/1.0 400 $error");
-            self::register($error, $userInfo);
-            die();
+            header("HTTP/1.0 400");
+            self::register($errorMsg, $userInfo);
         }
     }
 
     public static function loginVerify()
     {
+
+
+
         $pw = checkInput('pw', 8);
         $email = checkInput('email', 126);
 
@@ -221,16 +293,25 @@ HTML;
 
         foreach ($users as $user) {
             if ($user['email'] === $email && $user['pw'] === $pw) {
+                $_SESSION['email'] = $email;
                 $pageData = DEFAULT_PAGE_DATA;
                 $pageData['title'] = $email . " - " . COMPANY_NAME;
                 $PageData['description'] = 'Private zone';
                 $pageData['content'] = "$email are connected";
                 webpage::render($pageData);
-                die();
             }
         }
+
         $error = 'Check your credentials';
         header("HTTP/1.0 401 $error");
         self::login($error);
+    }
+
+    public static function logout()
+    {
+        unset($_SESSION['email']);
+        unset($_SESSION['loginCount']);
+        //$_SESSION = [];
+        header('location: index.php');
     }
 }

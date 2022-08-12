@@ -13,6 +13,7 @@ const EMAIL = 'info@manchesterunitedcanada.com';
 const PATH = 'products_images';
 const VISITOR_LOG_FILE =  'visitors.log';
 const LOG_DIRECTORY = 'log';
+const MAX_LOGIN_ATTEMPS = 3;
 
 /* web page variable properties */
 const DEFAULT_PAGE_DATA = [
@@ -32,6 +33,7 @@ const ROUTES = [
     'login-verify' => 2,
     'register' => 3,
     'register-verify' => 4,
+    'logout' => 5,
     'download-file' => 50,
     'redirect-amazon' => 51,
     'product-list' => 100,

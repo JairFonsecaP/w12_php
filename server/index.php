@@ -1,13 +1,48 @@
 <?php
+session_start();
+
 require_once 'globals.php';
 require_once 'tools.php';
 require_once 'view/webpage.php';
 require_once 'products.php';
 require_once 'users.php';
 
+function homePage()
+{
+    setcookie('home', time(), time() + (10 * 365 * 24 * 60 * 60));
+    $pageData = DEFAULT_PAGE_DATA;
+    $pageData['lang'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    $pageData['title'] = "Home - " . COMPANY_NAME;
+    switch ($pageData['lang']) {
+        case 'en':
+            $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
+            break;
+        case 'fr':
+            $pageData['content'] = "<h1>Bienvenue! Ceci est la page d'eacceuel!</h1>";
+            break;
+        case 'es':
+            $pageData['content'] = "<h1>Bienvenido! Esta es la pagina principal!</h1>";
+            break;
+        default:
+            $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
+    }
+    $pageData['content'] .= '<div class="alert alert-dark ms-2 me-2" role="alert">';
+
+    if (!isset($_COOKIE['home'])) {
+        $pageData['content'] .= 'Welcome, this is your first visit';
+    } else {
+        $time = date("l, M Y H:i:s", $_COOKIE['home']);
+        $pageData['content'] .= "Your last visit was " . $time;
+    }
+    $pageData['content'] .= '</div>';
+    //$pageData['content'] = '<h2 style="color:red">Welcome to Manchester United Canada!</h2>';
+    webpage::render($pageData);
+}
+
 function main()
 {
     $op = ROUTES['default'];
+
     logVisitor();
     if (isset($_REQUEST['op'])) {
         $op = $_REQUEST['op'];
@@ -15,24 +50,7 @@ function main()
 
     switch ($op) {
         case ROUTES['default']:
-            $pageData = DEFAULT_PAGE_DATA;
-            $pageData['lang'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-            $pageData['title'] = "Home - " . COMPANY_NAME;
-            switch ($pageData['lang']) {
-                case 'en':
-                    $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
-                    break;
-                case 'fr':
-                    $pageData['content'] = "<h1>Bienvenue! Ceci est la page d'eacceuel!</h1>";
-                    break;
-                case 'es':
-                    $pageData['content'] = "<h1>Bienvenido! Esta es la pagina principal!</h1>";
-                    break;
-                default:
-                    $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
-            }
-            //$pageData['content'] = '<h2 style="color:red">Welcome to Manchester United Canada!</h2>';
-            webpage::render($pageData);
+            homePage();
             break;
         case ROUTES['login']:
             users::login();
@@ -45,6 +63,9 @@ function main()
             break;
         case ROUTES['register-verify']:
             users::registerVerify();
+            break;
+        case ROUTES['logout']:
+            users::logout();
             break;
         case ROUTES['download-file']:
             //file download from server to client
@@ -75,5 +96,6 @@ function main()
             }
     }
 }
+
 
 main();

@@ -9,5 +9,6 @@ class webpage
         require_once 'nav.php';
         echo $pageData['content'];
         require_once 'footer.php';
+        exit();
     }
 }
