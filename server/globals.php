@@ -45,4 +45,5 @@ const ROUTES = [
     'customers' => 400,
     'customers_json' => 420,
     'products_json' => 120,
+    'employee_list' => 300,
 ];

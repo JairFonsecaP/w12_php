@@ -9,6 +9,7 @@ require_once 'view/webpage.php';
 require_once 'products.php';
 require_once 'users.php';
 require_once 'customers.php';
+require_once 'employees.php';
 
 function homePage()
 {
@@ -66,6 +67,14 @@ function main()
             break;
         case ROUTES['logout']:
             users::logout();
+            break;
+        case ROUTES['employee_list']:
+            if (isset($_SESSION['email'])) {
+                employees::list();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
             break;
         case ROUTES['download-file']:
             //file download from server to client

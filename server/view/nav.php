@@ -16,6 +16,8 @@
     if (isset($_SESSION['email'])) {
         $optionCustomers = ROUTES['customers'];
         $optionLogout = ROUTES['logout'];
+        $optionEmployees = ROUTES['employee_list'];
+        echo "<a href='index.php?op=$optionEmployees'>Employees</a> | ";
         echo "<a href='index.php?op=$optionCustomers'>Customers</a> | ";
         echo "<a href='index.php?op=$optionLogout'>Logout</a> | ";
         echo "<b>" . $_SESSION['email'] . "</b> | ";
