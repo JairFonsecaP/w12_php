@@ -44,7 +44,6 @@ function main()
 {
     $op = ROUTES['default'];
 
-    logVisitor();
     if (isset($_REQUEST['op'])) {
         $op = $_REQUEST['op'];
     }
@@ -90,6 +89,14 @@ function main()
         case ROUTES['customers']:
             if (isset($_SESSION['email'])) {
                 customers::list();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+        case ROUTES['customers_json']:
+            if (isset($_SESSION['email'])) {
+                customers::listJSON();
             } else {
                 header('HTTP/1.0 401 Must login, you are not authorized');
                 users::login('You are not authorized, please enter your credentials');

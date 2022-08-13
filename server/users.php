@@ -228,7 +228,7 @@ HTML;
 
         $params = [
             'fullname' => $fullname,
-            'pw' => $pw,
+            'pw' => password_hash($pw, PASSWORD_DEFAULT),
             "address_line_1" => $address_line_1,
             'address_line_2' => $address_line_2,
             'province' => $province,
@@ -279,9 +279,12 @@ HTML;
 
         $user = self::getUserByEmail($email);
 
-        if (count($user) === 1 && $user[0]["pw"] == $pw) {
+        if (count($user) === 1 && password_verify($pw, $user[0]["pw"])) {
             $_SESSION['email'] = $email;
             $_SESSION['picture'] = $user[0]['picture'];
+
+            logVisitor();
+
             $pageData = DEFAULT_PAGE_DATA;
             $pageData['title'] = $email . " - " . COMPANY_NAME;
             $PageData['description'] = 'Private zone';

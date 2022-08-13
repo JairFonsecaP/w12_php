@@ -43,5 +43,5 @@ const ROUTES = [
     'product-list' => 100,
     'product-cataloge' => 101,
     'customers' => 400,
-    'customer_filtered' => 401,
+    'customers_json' => 420,
 ];
