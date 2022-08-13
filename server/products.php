@@ -102,4 +102,15 @@ class products
 
         webpage::render($pageData);
     }
+
+    public static function listJSON()
+    {
+        $DB = new db_pdo();
+        $customers =  $DB->table("products");
+
+        $customersJson = json_encode($customers, JSON_PRETTY_PRINT);
+        header('Content-Type: application/json; charset:UTF-8');
+        http_response_code(200);
+        echo $customersJson;
+    }
 }

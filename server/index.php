@@ -86,6 +86,9 @@ function main()
         case ROUTES['product-cataloge']:
             products::productsCataloge();
             break;
+        case ROUTES['products_json']:
+            products::listJSON();
+            break;
         case ROUTES['customers']:
             if (isset($_SESSION['email'])) {
                 customers::list();
