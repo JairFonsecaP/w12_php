@@ -3,9 +3,12 @@ session_start();
 
 require_once 'globals.php';
 require_once 'tools.php';
+require_once 'db_pdo.php';
+
 require_once 'view/webpage.php';
 require_once 'products.php';
 require_once 'users.php';
+require_once 'customers.php';
 
 function homePage()
 {
@@ -14,15 +17,13 @@ function homePage()
     $pageData['lang'] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
     $pageData['title'] = "Home - " . COMPANY_NAME;
     switch ($pageData['lang']) {
-        case 'en':
-            $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
-            break;
         case 'fr':
             $pageData['content'] = "<h1>Bienvenue! Ceci est la page d'eacceuel!</h1>";
             break;
         case 'es':
             $pageData['content'] = "<h1>Bienvenido! Esta es la pagina principal!</h1>";
             break;
+        case 'en':
         default:
             $pageData['content'] = "<h1>Welcome! This is the home page</h1>";
     }
@@ -85,6 +86,14 @@ function main()
             break;
         case ROUTES['product-cataloge']:
             products::productsCataloge();
+            break;
+        case ROUTES['customers']:
+            if (isset($_SESSION['email'])) {
+                customers::list();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
             break;
         default: {
                 header('HTTP/1.0 400 This my own message, invalid opration');

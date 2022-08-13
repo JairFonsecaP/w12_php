@@ -42,3 +42,14 @@ td,th{
     display: flex;
     justify-content: space-around;
 }
+nav{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:space-around;
+    align-items: center;
+}
+
+.avatar{
+    width: 50px;
+    border-radius:50%
+}

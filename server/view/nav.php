@@ -1,5 +1,6 @@
 <!-- NAVIGATION BAR-->
 <nav>
+    |
     <a href='index.php'>Home</a>
     |
     <a href='index.php?op=<?= ROUTES['product-list'] ?>'>Product List</a>
@@ -13,9 +14,12 @@
     <?php
 
     if (isset($_SESSION['email'])) {
-        $option = ROUTES['logout'];
-        echo "<a href='index.php?op=$option'>Logout</a> | ";
-        echo "<b>" . $_SESSION['email'] . "</b>";
+        $optionCustomers = ROUTES['customers'];
+        $optionLogout = ROUTES['logout'];
+        echo "<a href='index.php?op=$optionCustomers'>Customers</a> | ";
+        echo "<a href='index.php?op=$optionLogout'>Logout</a> | ";
+        echo "<b>" . $_SESSION['email'] . "</b> | ";
+        echo "<img class='avatar' src='" . USER_IMAGES . DIRECTORY_SEPARATOR . $_SESSION['picture'] . "' /> |";
     } else {
         $optionLogin = ROUTES['login'];
         $optionRegister = ROUTES['register'];

@@ -14,6 +14,10 @@ const PATH = 'products_images';
 const VISITOR_LOG_FILE =  'visitors.log';
 const LOG_DIRECTORY = 'log';
 const MAX_LOGIN_ATTEMPS = 3;
+const USER_IMAGES = 'user_images';
+
+
+
 
 /* web page variable properties */
 const DEFAULT_PAGE_DATA = [
@@ -38,4 +42,6 @@ const ROUTES = [
     'redirect-amazon' => 51,
     'product-list' => 100,
     'product-cataloge' => 101,
+    'customers' => 400,
+    'customer_filtered' => 401,
 ];

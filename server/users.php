@@ -58,14 +58,9 @@ HTML;
             }
         }
 
-        $provinces = [
-            ['id' => 0, 'code' => 'QC', 'name' => 'Québec'],
-            ['id' => 1, 'code' => 'ON', 'name' => 'Ontario'],
-            ['id' => 2, 'code' => 'NB', 'name' => 'New-Brunswick'],
-            ['id' => 4, 'code' => 'NS', 'name' => 'Nova-Scotia'],
-            ['id' => 5, 'code' => 'MN', 'name' => 'Manitoba'],
-            ['id' => 6, 'code' => 'SK', 'name' => 'Saskatchewan'],
-        ];
+        $db = new db_pdo();
+        $provinces = $db->table("provinces");
+
         $languages = [
             ['code' => 'en', 'name' =>  'English'],
             ['code' => 'fr', 'name' =>  'French'],
@@ -77,8 +72,8 @@ HTML;
         if ($previous_data === []) {
             $previous_data = [
                 'fullname' => "",
-                "address_one" => "",
-                'address_two' => "",
+                "address_line_1" => "",
+                'address_line_2' => "",
                 'province' => "",
                 'city' => "",
                 'postal_code' => "",
@@ -129,8 +124,8 @@ HTML;
             <h3>General Information</h3>
                 <input class="form-control" type="text" name="fullname" id="fullname" maxlength="50" required placeholder="Fistname and lastname" value="{$previous_data['fullname']}" autofocus />
             <label class="form-label" for="address">Address (Optional):</label>
-                <input class="form-control" type="text" name="address_one" id="address" maxlength="255" value="{$previous_data['address_one']}" placeholder="Address Line 1"/>
-                <input class="form-control" type="text" name="address_two" id="address" maxlength="255" value="{$previous_data['address_two']}" placeholder="Address Line 2"/>
+                <input class="form-control" type="text" name="address_line_1" id="address" maxlength="255" value="{$previous_data['address_line_1']}" placeholder="Address Line 1"/>
+                <input class="form-control" type="text" name="address_line_2" id="address" maxlength="127" value="{$previous_data['address_line_2']}" placeholder="Address Line 2"/>
             <label class="form-label" for="city">City:</label>
                 <input class="form-control" type="text" name="city" maxlength="50" placeholder="Chambly" value="{$previous_data['city']}"/>
             <label class="form-label" for="province">Province:</label>
@@ -184,54 +179,18 @@ HTML;
 
     public static function registerVerify()
     {
-        // if (!isset($_FILES['my_picture']) || $_FILES['my_picture'] === 'none') {
-        //     echo "No image selected";
-        // } elseif ($_FILES['my_picture']['error'] !== UPLOAD_ERR_OK) {
-        //     echo 'error in file upload';
-        // } elseif ($_FILES['my_picture']['size'] > 1000000) {
-        //     echo 'error file too big';
-        // } elseif (!getimagesize($_FILES['my_picture']['tmp_name'])) {
-        //     echo 'This file is not an image';
-        // } else {
-        //     $pathParts = pathinfo($_FILES['my_picture']['name']);
-        //     $ext = $pathParts['extension'];
-
-        //     if ($ext !== 'png' && $ext !== 'jpg' && $ext !== 'JPG' && $ext !== 'jpeg' && $ext != 'gif') {
-        //         echo 'image format not supported';
-        //     }
-
-        //     $target_file = 'user_images' . DIRECTORY_SEPARATOR . basename($_FILES['my_picture']['name']);
-        //     if (file_exists($target_file)) {
-        //         return 'This file already exists';
-        //     } else {
-        //         if (move_uploaded_file($_FILES['my_picture']['tmp_name'], $target_file)) {
-        //             echo 'file upladed OK';
-        //             echo '<img src="' . $target_file . '" alt="my picture"/>';
-        //         } else {
-        //             echo 'file xfer failed';
-        //         }
-        //     }
-        // }
         $errorMsg = [];
-        $upload_image = Picture_Uploaded_Save_File('my_picture', 'user_images');
+        $upload_image = Picture_Uploaded_Save_File('my_picture', USER_IMAGES);
         if ($upload_image !== 'OK') {
             $errorMsg['Uploading image'] = $upload_image;
         }
 
-
-
         $pageData = DEFAULT_PAGE_DATA;
         $pageData['title'] = "Registration - " . COMPANY_NAME;
 
-        $users = [
-            ['id' => 0, 'email' => 'abc@test.com', 'pw' => '12345678'],
-            ['id' => 1, 'email' => 'def@test.com', 'pw' => '12345678'],
-            ['id' => 2, 'email' => 'abc@gmail.com', 'pw' => '11111111'],
-        ];
-
         $fullname = checkInput('fullname', 50);
-        $address_one = checkInput('address_one', 255);
-        $address_two = checkInput('address_two', 255);
+        $address_line_1 = checkInput('address_line_1', 255);
+        $address_line_2 = checkInput('address_line_2', 127);
         $city = checkInput('city', 50);
         $province = checkInput('province', 13);
         $postal_code = checkInput('postal_code', 7);
@@ -240,44 +199,77 @@ HTML;
         $email = checkInput('email', 126);
         $pw = checkInput('pw', 8);
         $pw2 = checkInput('pw2', 8);
-
-
-
-        $userInfo = $_POST;
-        $userInfo['spam_ok'] = isset($_POST['spam_ok']) ? $_POST['spam_ok'] : 0;
-
-
+        $spam_ok = isset($_POST['spam_ok']) ? $_POST['spam_ok'] : 0;
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errorMsg['email'] = 'Email format is wrong';
         }
 
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
-                $errorMsg['email used'] = 'This email already in use, please select a different email.';
-            }
+        $user = self::getUserByEmail($email);
+
+
+        if (count($user) > 0) {
+            $errorMsg['email used'] = 'This email already in use, please select a different email.';
         }
+
 
         if ($pw !== $pw2) {
             $errorMsg['password'] = 'Both password must be same';
         }
 
-        if ($errorMsg !== '') {
+        if ($errorMsg !== []) {
+            $userInfo = $_POST;
+            $userInfo['spam_ok'] = $spam_ok;
             unset($userInfo['pw']);
             unset($userInfo['pw2']);
             header("HTTP/1.0 400");
             self::register($errorMsg, $userInfo);
         }
+
+        $params = [
+            'fullname' => $fullname,
+            'pw' => $pw,
+            "address_line_1" => $address_line_1,
+            'address_line_2' => $address_line_2,
+            'province' => $province,
+            'city' => $city,
+            'postal_code' => $postal_code,
+            'email' => $email,
+            'language' => $language,
+            'other_lang' => $other_lang,
+            'level' => 'Client',
+            'spam_ok' => $spam_ok,
+            'file_name' => $_FILES['my_picture']['name'],
+            'customerNumber' => 1,
+        ];
+
+        $DB = new db_pdo();
+        $result = $DB->queryParam("INSERT into users(email,pw,level,fullname,address_line_1,address_line_2,city,province,postal_code,language,other_lang,spam_ok,picture,customerNumber)
+        values(:email,:pw,:level,:fullname,:address_line_1, :address_line_2, :city, :province, :postal_code, :language, :other_lang, :spam_ok,:file_name, :customerNumber)", $params);
+
+        if ($result->rowCount() <> 1) {
+            $userInfo = $_POST;
+            $userInfo['spam_ok'] = $spam_ok;
+            unset($userInfo['pw']);
+            unset($userInfo['pw2']);
+            $errorMsg['Insert Data'] = "Error inserting the new user.";
+            header("HTTP/1.0 400");
+            self::register($errorMsg, $userInfo);
+        }
+
+
+        $pageData = DEFAULT_PAGE_DATA;
+        $pageData['title'] = 'Account created - ' . COMPANY_NAME;
+        $pageData['content'] = '<div class="alert alert-success m-2" role="alert">
+                                    Your account was created successful
+                                </div>';
+        webpage::render($pageData);
     }
 
     public static function loginVerify()
     {
-
-
-
         $pw = checkInput('pw', 8);
         $email = checkInput('email', 126);
-
         $error = "";
 
         if ($pw == "" || $email == "") {
@@ -285,21 +277,16 @@ HTML;
             self::login($error);
         }
 
-        $users = [
-            ['id' => 0, 'email' => 'Yannick@gmail.com', 'pw' => '12345678'],
-            ['id' => 1, 'email' => 'Victor@test.com', 'pw' => '11111111'],
-            ['id' => 2, 'email' => 'Christian@victoire.ca', 'pw' => '22222222'],
-        ];
+        $user = self::getUserByEmail($email);
 
-        foreach ($users as $user) {
-            if ($user['email'] === $email && $user['pw'] === $pw) {
-                $_SESSION['email'] = $email;
-                $pageData = DEFAULT_PAGE_DATA;
-                $pageData['title'] = $email . " - " . COMPANY_NAME;
-                $PageData['description'] = 'Private zone';
-                $pageData['content'] = "$email are connected";
-                webpage::render($pageData);
-            }
+        if (count($user) === 1 && $user[0]["pw"] == $pw) {
+            $_SESSION['email'] = $email;
+            $_SESSION['picture'] = $user[0]['picture'];
+            $pageData = DEFAULT_PAGE_DATA;
+            $pageData['title'] = $email . " - " . COMPANY_NAME;
+            $PageData['description'] = 'Private zone';
+            $pageData['content'] = "$email are connected";
+            webpage::render($pageData);
         }
 
         $error = 'Check your credentials';
@@ -311,7 +298,14 @@ HTML;
     {
         unset($_SESSION['email']);
         unset($_SESSION['loginCount']);
+        unset($_SESSION['picture']);
         //$_SESSION = [];
         header('location: index.php');
+    }
+
+    public static function getUserByEmail(string $email)
+    {
+        $db_pdo = new db_pdo();
+        return $db_pdo->querySelect("SELECT * FROM users WHERE email = '$email' LIMIT 1");
     }
 }

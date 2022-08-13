@@ -127,7 +127,7 @@ function Picture_Uploaded_Save_File($file_input, $target_dir)
         if (move_uploaded_file($_FILES[$file_input]['tmp_name'], $target_file)) {
             // ALL OK
             //display image for testing, comment next line when done
-            echo '<img src="' . $target_file . '">';
+            // echo '<img src="' . $target_file . '">';
 
             return 'OK';
         } else {
