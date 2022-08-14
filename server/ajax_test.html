@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Test AJAX</title>
+</head>
+
+<body>
+    <h1>TEST AJAX</h1>
+    <hr>
+
+    <!-- Using REST API with AJAX calls ---------------- --------------------------------------->
+    <button id="get_products_button">Get all products from server</button><br>
+    Status: <b><span id="status">Click the button</span></b><br>
+    <div id="list" style="border:1px dashed black">Content displayed here</div>
+
+    <!-- include jQuery javascript library-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+        'use strict'
+        $(document).ready(function () {
+
+            // GET ALL button -----------------------------------------------------
+            $("#get_products_button").click(
+
+                () => {
+                    $("#status").html("Waiting for server...")
+                    $("#list").html("") // clear previous result
+                    $.get(
+                        'index.php?op=320',
+                        (response, textStatus) => {
+                            // this executes only on success code returned 2xx like 200, 201, etc..
+                            //console.log(response)
+                            $("#status").html(textStatus)
+                            let data_returned = response
+                            console.table(response)
+
+                            // build html table with results
+                            let table_html = '<table>'
+                            table_html += '<th>Code</th> <th>Name</th> <th>Line</th> <th>MSRP price</th>'
+                            for (let i = 0; i < data_returned.length; i++) {
+                                table_html += `<tr><td> ${data_returned[i].employeeNumber} </td> <td> ${data_returned[i].fullname} </td> <td> ${data_returned[i].extension} </td>  <td> ${data_returned[i].email} </td></tr>`
+                            }
+                            table_html += '</table>'
+                            $("#list").html(table_html)
+                        })
+
+                        .fail((jqXHR, textStatus, errorThrown) => {
+                            // this executes only on error with code other than 2xx
+                            // display response code
+                            $("#status").html(jqXHR.status)
+                            $("#status").append(' ' + errorThrown)
+                        })
+
+                }
+            )
+        })
+    </script>
+</body>
+
+</html>

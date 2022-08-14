@@ -90,7 +90,20 @@ function main()
             header('location: https://www.amazon.ca/ ');
             break;
         case ROUTES['product-list']:
-            products::productsList();
+            if (isset($_SESSION['email'])) {
+                products::productsList();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+        case ROUTES['employee-listJSON']:
+            if (isset($_SESSION['email'])) {
+                employees::employeesJsonList();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
             break;
         case ROUTES['product-cataloge']:
             products::productsCataloge();
