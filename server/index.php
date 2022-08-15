@@ -68,14 +68,7 @@ function main()
         case ROUTES['logout']:
             users::logout();
             break;
-        case ROUTES['employee_list']:
-            if (isset($_SESSION['email'])) {
-                employees::list();
-            } else {
-                header('HTTP/1.0 401 Must login, you are not authorized');
-                users::login('You are not authorized, please enter your credentials');
-            }
-            break;
+
         case ROUTES['download-file']:
             //file download from server to client
             // set the file type, here a PDF file, see link below for other file types
@@ -97,14 +90,7 @@ function main()
                 users::login('You are not authorized, please enter your credentials');
             }
             break;
-        case ROUTES['employee-listJSON']:
-            if (isset($_SESSION['email'])) {
-                employees::employeesJsonList();
-            } else {
-                header('HTTP/1.0 401 Must login, you are not authorized');
-                users::login('You are not authorized, please enter your credentials');
-            }
-            break;
+
         case ROUTES['product-cataloge']:
             products::productsCataloge();
             break;
@@ -127,6 +113,53 @@ function main()
                 users::login('You are not authorized, please enter your credentials');
             }
             break;
+
+            /**EMPLOYEES */
+
+        case ROUTES['employee_list']:
+            if (isset($_SESSION['email'])) {
+                employees::list();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+        case ROUTES['employee-listJSON']:
+            if (isset($_SESSION['email'])) {
+                employees::employeesJsonList();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+        case ROUTES['employee-detail']:
+            if (isset($_SESSION['email'])) {
+                employees::employeeDetail();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+        case ROUTES['employee_add']:
+            if (isset($_SESSION['email'])) {
+                employees::registrer();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+        case ROUTES['employee_register_verify']:
+            if (isset($_SESSION['email'])) {
+                employees::registrerVerify();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
         default: {
                 header('HTTP/1.0 400 This my own message, invalid opration');
                 $pageData = DEFAULT_PAGE_DATA;
