@@ -15,7 +15,7 @@ nav {
 footer {
     background-color: black;
     color: white;
-    padding: 10px
+    padding: 10px;
 }
 
 /* Exercise 7-8 */
@@ -25,31 +25,36 @@ table {
     margin: 10px;
 }
 
-td,th{
-            border: black 1px solid;
-            padding: 5px;
-        }
+td,
+th {
+    border: black 1px solid;
+    padding: 5px;
+}
 
-.error-message{
+.error-message {
     background-color: rgb(221, 61, 70);
     font-weight: bold;
     border-radius: 2px;
-    padding: 5px
+    padding: 5px;
 }
 
-.buttons-login{
+.buttons-login {
     margin-top: 10px;
     display: flex;
     justify-content: space-around;
 }
-nav{
+nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content:space-around;
+    justify-content: space-around;
     align-items: center;
 }
 
-.avatar{
+.avatar {
     width: 50px;
-    border-radius:50%
+    border-radius: 50%;
+}
+
+.btn {
+    width: 200px;
 }

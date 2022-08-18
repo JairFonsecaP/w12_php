@@ -1,7 +1,7 @@
 <!-- NAVIGATION BAR-->
 <nav>
     |
-    <a href='index.php'>Home</a>
+    <a href='index.php'><i class='fas fa-home'></i> Home</a>
     |
     <a href='index.php?op=<?= ROUTES['product-list'] ?>'>Product List</a>
     |

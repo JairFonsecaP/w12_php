@@ -10,10 +10,11 @@ class employees
         if (!$id) {
             $DB = new db_pdo();
             $employees =  $DB->querySelect(
-                "SELECT emp.employeeNumber, CONCAT(emp.firstName, ' ',emp.lastName) as fullname, emp.email, emp.extension, offices.officeCode, offices.postalCode, offices.city, offices.state, emp.jobTitle, boss.employeeNumber as bossNumber, CONCAT(boss.firstName, ' ',boss.lastName) as fullnameBoss FROM employees emp
+                "SELECT emp.employeeNumber,emp.firstName, emp.lastName, emp.email, emp.extension, offices.officeCode, offices.postalCode, offices.city, offices.state, emp.jobTitle, boss.employeeNumber as reportsTo, boss.firstName as firstNameBoss, boss.lastName as lastNameBoss FROM employees emp
                 INNER JOIN offices ON offices.officeCode = emp.officeCode
                 LEFT JOIN employees boss
-                ON boss.employeeNumber = emp.reportsTo;"
+                ON boss.employeeNumber = emp.reportsTo
+                ORDER BY emp.employeeNumber;"
             );
             $pageData['title'] = "Employees - " . COMPANY_NAME;
         } else {
@@ -26,15 +27,15 @@ class employees
 
         foreach ($employees as $employee) {
             $number = $employee['employeeNumber'];
-            $fullname = $employee['fullname'];
+            $fullname = $employee['firstName'] . ' ' . $employee['lastName'];
             $email = $employee['email'];
             $extension = $employee['extension'];
             $officeCode = $employee['officeCode'];
             $postalCode = $employee['postalCode'];
             $city = $employee['city'];
             $state = $employee['state'];
-            $bossNumber = $employee['bossNumber'];
-            $fullnameBoss = $employee['fullnameBoss'];
+            $bossNumber = $employee['reportsTo'];
+            $fullnameBoss = $employee['firstNameBoss'] . ' ' . $employee['lastNameBoss'];
             $jobTitle = $employee['jobTitle'];
             $table_body .= <<<HTML
                 <tr>
@@ -49,9 +50,8 @@ class employees
                     <td header="state office"  class="table-primary">{$state}</td>
                     <td header="bossNumber boss" class="table-success"><a href='index.php?op=302&employeeNumber={$number}'>{$bossNumber}</a></td>
                     <td header="bossName boss" class="table-success">{$fullnameBoss}</td>
-                    <td header="view action" class="table-warning"><a href="index.php?op=302&employeeNumber={$number}">View</a></td>
-                    <td header="edit action" class="table-warning"><a href="index.php?op=303&employeeNumber={$number}">Edit</a></td>
-                    <td header="delete action" class="table-warning"><a href="index.php?op=304&employeeNumber={$number}">Delete</a></td>
+                    <td header="edit action" class="table-warning text-center"><a style="text-decoration: none;color:gray" href="index.php?op=303&employeeNumber={$number}"><i class='fas fa-user-edit'></i></a></td>
+                    <td header="delete action" class="table-warning text-center"><a style="text-decoration: none;color:red" href="index.php?op=304&employeeNumber={$number}"><i class="material-icons">delete_forever</i></a></td>
                 </tr>
             HTML;
         }
@@ -84,7 +84,7 @@ class employees
                                 <th colspan="5" class="table-danger">Employee</th>
                                 <th scope="col" id="office" colspan="4" class="table-primary">Office</th>
                                 <th scope="col" id="boss" colspan="2" class="table-success">Boss</th>
-                                <th scope="col" id="aciton" colspan="3" class="table-warning">Actions</th>
+                                <th scope="col" id="aciton" colspan="2" class="table-warning">Actions</th>
                             </tr>
                             <tr>
                                 <th scope="col" id="number" class="table-danger">Number</th>
@@ -98,7 +98,6 @@ class employees
                                 <th scope="col" id="state office"  class="table-primary">State</th>
                                 <th scope="col" id="bossNumber boss" class="table-success">Number</th>
                                 <th scope="col" id="bossName boss" class="table-success">Name</th>
-                                <th scope="col" id="view action" class="table-warning">View</th>
                                 <th scope="col" id="edit action" class="table-warning">Edit</th>
                                 <th scope="col" id="delete action" class="table-warning">Delete</th>
                             </tr>
@@ -121,50 +120,45 @@ class employees
         $PageData['description'] = 'Registration of new user';
         $pageData['title'] = "New employee - " . COMPANY_NAME;
         $card_title = 'New employee';
-        $employeeNumber = -1;
         $error = '';
 
-        $button = <<<HTML
-        <div class="col-12">
-            <button class="btn btn-primary" type="submit">Save</button>
-        </div>
-        HTML;
-
-        /*Validation for editing or create new employee with or without previus data  */
-        if ($previusData !== [] && $errors !== []) {
-            foreach ($errors as $e) {
+        if ($errors !== []) {
+            foreach ($errors as $key => $value) {
                 $error .=   <<<HTML
                                 <div class="alert alert-danger m-1" role="alert">
-                                    {$e}
+                                    <b>{$key}</b>{$value}
                                 </div>
                             HTML;
             }
-        } else {
-            if (isset($_GET['employeeNumber'])) {
-                $previusData = self::getEmployeeByNumber($_GET['employeeNumber']);
-            }
-            if (count($previusData) >= 1) {
-                $previusData = $previusData[0];
-                $card_title = "Edit employee";
-                $employeeNumber = $previusData['employeeNumber'];
-                $pageData['title'] = "Editing to " . $previusData['firstName'] . ' ' . $previusData['lastName'] . ' - ' . COMPANY_NAME;
-                $button = <<<HTML
-                    <div class="col-12">
-                        <button class="btn btn-primary" type="submit">Edit</button>
-                    </div>
-                HTML;
-            } else {
-                $previusData = [
-                    'lastName' => '',
-                    'firstName' => '',
-                    'extension' => '',
-                    'email' => '',
-                    'officeCode' => '',
-                    'reportsTo' => null,
-                    'jobTitle' => '',
-                ];
-            }
         }
+
+        /*Validation for editing or create new employee with or without previus data  */
+
+        if (isset($_GET['employeeNumber'])) {
+            $previusData = self::getEmployeeByNumber($_GET['employeeNumber']);
+        }
+
+
+        if ($previusData === [] && (!isset($previusData['employeeNumber']) || $previusData['employeeNumber'] === '-1')) {
+            $previusData = [
+                'employeeNumber' => -1,
+                'lastName' => '',
+                'firstName' => '',
+                'extension' => '',
+                'email' => '',
+                'officeCode' => '',
+                'reportsTo' => null,
+                'jobTitle' => '',
+            ];
+        } else if (isset($previusData['employeeNumber']) && $previusData['employeeNumber'] !== '-1') {
+            $card_title = "Edit employee";
+            $pageData['title'] = "Editing to " . $previusData['firstName'] . ' ' . $previusData['lastName'] . ' - ' . COMPANY_NAME;
+        } elseif ((isset($_GET['employeeNumber']) && count($previusData) >= 1)) {
+            $previusData = $previusData[0];
+            $card_title = "Edit employee";
+            $pageData['title'] = "Editing to " . $previusData['firstName'] . ' ' . $previusData['lastName'] . ' - ' . COMPANY_NAME;
+        }
+
 
         /*Input selection REPORTS TO*/
         $DB = new db_pdo();
@@ -173,7 +167,9 @@ class employees
         $bossSelect = <<<HTML
                             <div class="col-md-6">
                                 <label for="reportsTo" class="form-label">Reports to:</label>
-                                <select class="form-select" id="reportsTo">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-user-friends'></i></span>
+                                    <select class="form-select" id="reportsTo" name="reportsTo">
                         HTML;
         foreach ($boss as $b) {
             $selected = ($previusData['reportsTo'] === $b['employeeNumber'] ? 'selected' : '');
@@ -182,7 +178,8 @@ class employees
                         HTML;
         }
         $bossSelect .= <<<HTML
-                                </select>
+                                    </select>
+                                </div>
                             </div>
                         HTML;
 
@@ -193,7 +190,9 @@ class employees
         $officesSelect = <<<HTML
                             <div class="col-md-6">
                                 <label for="offices" class="form-label">Office:</label>
-                                <select class="form-select" id="office">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-home'></i></span>
+                                    <select class="form-select" name="officeCode" id="office">
                         HTML;
         foreach ($offices as $office) {
             $selected = ($previusData['officeCode'] === $office['officeCode'] ? 'selected' : '');
@@ -202,7 +201,8 @@ class employees
                             HTML;
         }
         $officesSelect .= <<<HTML
-                                </select>
+                                    </select>
+                                </div>
                             </div>
                         HTML;
 
@@ -214,47 +214,65 @@ class employees
                 <div class="card m-4">
                     <h5 class="card-header">{$card_title}</h5>
                     <div class="card-body">
+                        {$error}
                         <form action="index.php" method="POST" class="row g-3 needs-validation" novalidate>
                             <input value="{$optionForm}" name="op" type="hidden"/>
-                            <input value="{$employeeNumber}" name="employeeNumber" type="hidden"/>
+                            <input value="{$previusData['employeeNumber']}" name="employeeNumber" type="hidden"/>
                             <div class="col-md-6">
                                 <label for="fisrtName" class="form-label">Firstname:</label>
-                                <input type="text" class="form-control" id="fisrtName" value="{$previusData['firstName']}" required maxlength="50">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-list'></i></span>
+                                    <input type="text" class="form-control" id="fisrtName" name="firstName" value="{$previusData['firstName']}" required maxlength="50">
+                                </div>
                                 <div class="invalid-feedback">
                                     Enter a firstname (max 50 char)
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="lastName" class="form-label">Lastname:</label>
-                                <input type="text" class="form-control" id="lastName" value="{$previusData['lastName']}" required maxlength="50">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-list'></i></span>
+                                    <input type="text" class="form-control" id="lastName" name="lastName" value="{$previusData['lastName']}" required maxlength="50">
+                                </div>
                                 <div class="invalid-feedback">
                                     Enter a lastname (max 50 char)
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="extension" class="form-label">Extension:</label>
-                                <input type="text" class="form-control" id="extension" value="{$previusData['extension']}" required maxlength="10">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-phone-alt'></i></span>
+                                    <input type="text" class="form-control" id="extension" name="extension" value="{$previusData['extension']}" required maxlength="10">
+                                </div>
                                 <div class="invalid-feedback">
                                     Enter a lastname (max 10 char)
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="email" class="form-label">Email:</label>
-                                <input type="email" class="form-control" id="email" value="{$previusData['email']}" required maxlength="100">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="material-icons">email</i></span>
+                                    <input type="email" class="form-control" id="email" name="email" value="{$previusData['email']}" required maxlength="100">
+                                </div>
                                 <div class="invalid-feedback">
                                     You must enter a valid enter
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="jobTitle" class="form-label">Job title:</label>
-                                <input type="text" class="form-control" id="jobTitle" value="{$previusData['jobTitle']}" required maxlength="50">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="material-icons">computer</i></span>
+                                    <input type="text" class="form-control" id="jobTitle" name="jobTitle" value="{$previusData['jobTitle']}" required maxlength="50">
+                                </div>
                                 <div class="invalid-feedback">
                                     You must enter a job title (max 50 char)
                                 </div>
                             </div>
                             {$bossSelect}
                             {$officesSelect}
-                            {$button}
+                            <div class="col-12">
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -288,7 +306,98 @@ class employees
 
     public static function registrerVerify()
     {
-        echo $_POST['op'];
+        $errorMsg = [];
+        $firstName = checkInput('firstName', 50);
+        $lastName = checkInput('lastName', 50);
+        $extension = checkInput('extension', 10);
+        $email = checkInput('email', 100);
+        $officeCode = checkInput('officeCode', 10);
+        $reportsTo = checkInput('reportsTo', 11) === '' ? null : $_POST['reportsTo'];
+        $jobTitle = checkInput('jobTitle', 50);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errorMsg['email: '] = 'Email format is wrong';
+        }
+        if ($firstName === '') {
+            $errorMsg['Firstname: '] = 'Cannot be empty';
+        }
+        if ($lastName === '') {
+            $errorMsg['Lastname: '] = 'Cannot be empty';
+        }
+        if ($extension === '') {
+            $errorMsg['Extension: '] = 'Cannot be empty';
+        }
+        if ($officeCode === '') {
+            $errorMsg['Office code: '] = 'Cannot be empty';
+        }
+        if ($jobTitle === '') {
+            $errorMsg['Job title: '] = 'Cannot be empty';
+        }
+
+        $employeeData = [
+            'employeeNumber' => $_POST['employeeNumber'],
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'extension' => $extension,
+            'email' => $email,
+            'officeCode' => $officeCode,
+            'reportsTo' => $reportsTo,
+            'jobTitle' => $jobTitle,
+        ];
+
+        if ($errorMsg !== []) {
+            header("HTTP/1.0 400");
+            self::registrer($employeeData, $errorMsg);
+        }
+
+        if ($employeeData['employeeNumber'] === '-1') {
+            $DB = new db_pdo();
+            $employeeData['employeeNumber'] = $DB->querySelect('SELECT MAX(employeeNumber) FROM employees;')[0]['MAX(employeeNumber)'];
+            $employeeData['employeeNumber']++;
+            self::registerNewEmployee($employeeData);
+        } else {
+            self::editEmployee($employeeData);
+        }
+
+
+        $pageData = DEFAULT_PAGE_DATA;
+        $pageData['title'] = "Register a employee - " . COMPANY_NAME;
+    }
+
+    private static function registerNewEmployee(array $data)
+    {
+        $DB = new db_pdo();
+        $query = 'INSERT INTO employees (employeeNumber ,firstname, lastname, extension, email, officeCode, reportsTo, jobTitle)
+        VALUES (:employeeNumber, :firstName, :lastName, :extension, :email, :officeCode, :reportsTo, :jobTitle);';
+        $response = $DB->queryParam($query, $data);
+        if ($response->rowCount() === 1) {
+            http_response_code(201);
+            header("location: index.php?op=" . ROUTES['employee-detail'] . "&employeeNumber=" . $data['employeeNumber']);
+        } else {
+            displayError('Employee could not be created', 400);
+        }
+    }
+
+    private static function editEmployee(array $data)
+    {
+        $DB = new db_pdo();
+        $query =
+            'UPDATE employees
+                SET firstname = :firstName,
+                lastname = :lastName,
+                extension = :extension,
+                email = :email,
+                officeCode = :officeCode,
+                reportsTo = :reportsTo,
+                jobTitle = :jobTitle
+                WHERE employeeNumber = :employeeNumber;';
+        $response = $DB->queryParam($query, $data);
+        if ($response->rowCount() === 1) {
+            header("location: index.php?op=" . ROUTES['employee-detail'] . "&employeeNumber=" . $data['employeeNumber']);
+            echo "entro";
+        } else {
+            displayError("Employee could not be edited the employee.", 400);
+        }
     }
 
     public static function employeeDetail()

@@ -90,6 +90,11 @@ class customers
 
         $customersJson = json_encode($customers, JSON_PRETTY_PRINT);
         header('Content-Type: application/json; charset:UTF-8');
+        // $seconds_to_cache = 3600;
+        // $ts = gmdate("D, d M Y H:i:s", time() + $seconds_to_cache) . " GMT";
+        // header("Expires: $ts");
+        // header("Pragma: cache");
+        // header("Cache-Control: max-age=$seconds_to_cache");
         http_response_code(200);
         echo $customersJson;
     }

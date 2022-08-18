@@ -36,8 +36,10 @@ class users
         <input type="hidden" value="{$option}" name="op" />
         <lable class="form-label" for="email">Email: </lable><input class="form-control" type="email" id="email" name="email" required maxlength="126" autofocus /><br/>
         <lable class="form-label" for="pw">Password: </label><input class="form-control" type="password" id="pw" name="pw" required maxlength="8" placeholder="max 8 characters" /><br/>
-        <div class="buttons-login"><button class="btn btn-primary">Continue</button>
-        <button type="button" class="btn btn-danger" onclick="history.back()">Back</button></div>
+        <div class="buttons-login">
+            <button class="btn btn-success">Continue</button>
+            <button type="button" class="btn btn-danger" onclick="history.back()">Back</button>
+        </div>
         </form>
 HTML;
 

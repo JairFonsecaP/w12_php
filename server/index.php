@@ -10,6 +10,7 @@ require_once 'products.php';
 require_once 'users.php';
 require_once 'customers.php';
 require_once 'employees.php';
+require_once 'errorPage.php';
 
 function homePage()
 {

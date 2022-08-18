@@ -1,5 +1,8 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 function checkDirectory()
 {
     if (!file_exists(LOG_DIRECTORY)) {
@@ -226,5 +229,45 @@ function Picture_Save_BLOB($file_input)
         }
     } else {
         echo $message;
+    }
+}
+
+
+function gmail($to, $from)
+{
+    /* Exception class. */
+    require 'src/Exception.php';
+
+    /* The main PHPMailer class. */
+    require 'src/PHPMailer.php';
+
+    /* SMTP class, needed if you want to use SMTP. */
+    require 'src/SMTP.php';
+
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+    $mail->CharSet = 'UTF-8';
+
+    $mail->Host       = "ssl://smtp.gmail.com"; // SMTP server example
+    $mail->SMTPDebug  = 0;                     // enables SMTP debug information (for testing)
+    $mail->SMTPAuth   = true;                  // enable SMTP authentication
+    $mail->Port       = 465;                    // set the SMTP port for the GMAIL server
+    $mail->Username   = ""; // SMTP account username example
+    $mail->Password   = "";
+    $mail->setFrom('', 'JF');
+
+    /* Add a recipient. */
+    $mail->addAddress('blackmambo90@gmail.com', 'Test 1');
+
+
+    /* Set the subject. */
+    $mail->Subject = 'mail subject ';
+
+    /* Set the mail message body. */
+    $mail->Body = 'Demo mail is working';
+    try {
+        $mail->send();
+    } catch (Exception $e) {
+        echo $e->getMessage();
     }
 }
