@@ -2,25 +2,25 @@
 class db_pdo
 {
     /*SQL DATABASE LOCAL*/
-    const DB_SERVER_TYPE = 'mysql'; // MySQL or MariaDB server
-    const DB_HOST = '127.0.0.1'; // local server on my laptop
-    const DB_PORT = 3307; // optional, default 3306, use 3307 for MariaDB
-    const DB_NAME = 'classicmodels'; // for Database classicmodels
-    const DB_CHARSET = 'utf8mb4'; //optional
+    // const DB_SERVER_TYPE = 'mysql'; // MySQL or MariaDB server
+    // const DB_HOST = '127.0.0.1'; // local server on my laptop
+    // const DB_PORT = 3307; // optional, default 3306, use 3307 for MariaDB
+    // const DB_NAME = 'classicmodels'; // for Database classicmodels
+    // const DB_CHARSET = 'utf8mb4'; //optional
 
-    const DB_USER_NAME = 'web_site'; // default user, other users can be created with phpMyAdmin
-    const DB_PASSWORD = '1234567890';
+    // const DB_USER_NAME = 'web_site'; // default user, other users can be created with phpMyAdmin
+    // const DB_PASSWORD = '1234567890';
 
 
     /*REMOTE DATABASE */
-    // const DB_SERVER_TYPE = 'mysql'; // MySQL or MariaDB server
-    // const DB_HOST = 'sql108.epizy.com'; // local server on my laptop
-    // const DB_PORT = 3306; // optional, default 3306, use 3307 for MariaDB
-    // const DB_NAME = 'epiz_32411805_classicmodels'; // for Database classicmodels
-    // const DB_CHARSET = 'utf8mb4'; //optional
+    const DB_SERVER_TYPE = 'mysql'; // MySQL or MariaDB server
+    const DB_HOST = 'sql108.epizy.com'; // local server on my laptop
+    const DB_PORT = 3306; // optional, default 3306, use 3307 for MariaDB
+    const DB_NAME = 'epiz_32411805_classicmodels'; // for Database classicmodels
+    const DB_CHARSET = 'utf8mb4'; //optional
 
-    // const DB_USER_NAME = 'epiz_32411805'; // default user, other users can be created with phpMyAdmin
-    // const DB_PASSWORD = 'aP6Ta0R1PFaUL';
+    const DB_USER_NAME = 'epiz_32411805'; // default user, other users can be created with phpMyAdmin
+    const DB_PASSWORD = 'aP6Ta0R1PFaUL';
 
     // PDO connection options
     const DB_OPTIONS = [

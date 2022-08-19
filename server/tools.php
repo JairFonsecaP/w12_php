@@ -52,12 +52,12 @@ function checkInput(string $name, int $maxlength = 0): string
     if (isset($_REQUEST[$name])) {
         if ($maxlength <= 0 && strlen($_REQUEST[$name]) > $maxlength) {
             header('HTTP/1.0 400 Input ' . $name . ' too long');
-            exit('Input ' . $name . ' too long');
+            displayError('Input ' . $name . ' too long');
         }
         return htmlspecialchars($_REQUEST[$name]);
     } else {
         header('HTTP/1.0 400 Input ' . $name . ' missing');
-        exit('Input ' . $name . ' missing');
+        displayError('Input ' . $name . ' missing');
     }
 }
 

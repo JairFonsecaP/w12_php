@@ -1,8 +1,23 @@
 <?php
 class orders
 {
-    public static function list()
+    public static function list(string $message = '', bool $success = false)
     {
+        if ($message !== '') {
+            if ($success) {
+                $message = <<<HTML
+                <div class="alert alert-success m-2" role="alert">
+                    {$message}
+                </div>
+            HTML;
+            } else {
+                $message = <<<HTML
+                <div class="alert alert-danger m-2" role="alert">
+                    {$message}
+                </div>
+            HTML;
+            }
+        }
 
         $DB = new db_pdo();
         $orders =  $DB->table("orders");
@@ -37,20 +52,16 @@ class orders
                     <td header="orderDate">{$orderDate}</td>
                     <td header="status">{$status}</td>
                     <td header="customerNumber">{$customerNumber}</td>
-                    <td header="edit action"><a style="text-decoration: none;color:gray" href="index.php?op=203&employeeNumber={$orderNumber}"><i class='fas fa-user-edit'></i></a></td>
+                    <td header="edit action"><a style="text-decoration: none;color:gray" href="index.php?op=203&orderNumber={$orderNumber}"><i class='fas fa-user-edit'></i></a></td>
                 </tr>
             HTML;
         }
 
         $content = <<<HTML
-                        <div class="card m-2">
-                <div class="card-body">
-
-                </div>
-            </div>
             <div class="card m-2">
                 <h5 class="card-header d-flex justify-content-between align-items-center"><p class="align-self-center">{$size}</p><a type="button" class="btn btn-primary" href="index.php?op=303">New Order</a></h5>
                 <div class="card-body p-0">
+                {$message}
                     <table class="table table-striped table-hover m-0">
                         <thead >
                             <tr>
@@ -81,6 +92,8 @@ class orders
         if (!isset($_GET['orderNumber']) || $_GET['orderNumber'] === '') {
             header('location: index.php?op=200');
         }
+
+
 
         $DB = new db_pdo();
         $query = '  SELECT orderNumber, orderDate, requiredDate, shippedDate, status, comments, contactFirstName, contactLastName, orders.customerNumber   FROM orders
@@ -183,8 +196,229 @@ class orders
     }
     public static function edit(array $errors = [], array $previusData = [])
     {
+        $showError = '';
+        if ($errors !== []) {
+            foreach ($errors as $key => $value) {
+                $showError .= <<<HTML
+                    <div class="alert alert-danger" role="alert">
+                        <b>{$key}</b> {$value}
+                    </div>
+                HTML;
+            }
+        }
+
+        if (isset($_GET['orderNumber'])) {
+            if ($previusData === []) {
+                $query = 'SELECT * FROM orders WHERE orderNumber = :orderNumber';
+                $params = ['orderNumber' => $_GET['orderNumber']];
+                $DB = new db_pdo();
+                $previusData = $DB->querySelectParam($query, $params);
+                if (count($previusData) > 0) {
+                    $previusData = $previusData[0];
+                } else {
+                    displayError('Order not found', 404);
+                }
+            }
+        } else {
+            displayError('You must to enter a orderNumber', 400);
+        }
+        $DB = new db_pdo();
+        $customers = $DB->table('customers');
+        $customersSelect = <<<HTML
+            <div class="col-md-6">
+                                <label for="customerNumber" class="form-label"><b>Customer:</b></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='fas fa-user-alt'></i></span>
+                                    <select class="form-select" name="customerNumber" id="customerNumber" required>
+        HTML;
+        foreach ($customers as $customer) {
+            $selected = ($previusData['customerNumber'] === $customer['customerNumber'] ? 'selected' : '');
+            $customersSelect .= <<< HTML
+                                <option value="{$customer['customerNumber']}" {$selected} required>{$customer['customerName']}</option>
+                            HTML;
+        }
+        $customersSelect .= <<<HTML
+                                    </select>
+                                </div>
+                            </div>
+                        HTML;
+
+        $DB = new db_pdo();
+        $statusList = $DB->querySelect('SELECT DISTINCT status FROM orders ORDER BY status;');
+
+
+        $statusRadio = <<<HTML
+                    <div>
+                        <label class="form-label"><b>Status:</b></label>
+
+            HTML;
+
+        foreach ($statusList as  $value) {
+            $checked = ($previusData['status'] === $value['status'] ? 'checked' : '');
+            $statusRadio .= <<< HTML
+                        <div class="form-check  form-check-inline">
+                            <input class="form-check-input" type="radio" name="status" id="{$value['status']}" value="{$value['status']}" required {$checked}>
+                            <label class="form-check-label" for="{$value['status']}">{$value['status']}</label>
+                        </div>
+            HTML;
+        }
+
+        $statusRadio .= '</div>';
+
+
+        $optionForm = ROUTES['order_save'];
+        $content = <<<HTML
+                    <div class="card m-4">
+                    <h5 class="card-header">Order #{$previusData['orderNumber']}</h5>
+                    <div class="card-body">
+                        {$showError}
+                        <form action="index.php" method="POST" class="row g-3 needs-validation" novalidate>
+                            <input value="{$optionForm}" name="op" type="hidden"/>
+                            <input value="{$previusData['orderNumber']}" name="orderNumber" type="hidden"/>
+                            {$customersSelect}
+                            <div class="col-md-6">
+                                <label for="orderDate" class="form-label"><b>Order Date</b> (dd/mm/yyyy):</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="material-icons">date_range</i></span>
+                                    <input type="date" class="form-control" id="orderDate" name="orderDate" value="{$previusData['orderDate']}" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Enter a date valid dd/mm/yyyy
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="requiredDate" class="form-label"><b>Required Date</b> (dd/mm/yyyy):</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="requiredDate"><i class="material-icons">date_range</i></span>
+                                    <input type="date" class="form-control" id="requiredDate" name="requiredDate" value="{$previusData['requiredDate']}" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Enter a date valid dd/mm/yyyy
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="shippedDate" class="form-label"><b>Shipped Date</b> (dd/mm/yyyy):</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="shippedDate"><i class="material-icons">date_range</i></span>
+                                    <input type="date" class="form-control" id="shippedDate" name="shippedDate" value="{$previusData['shippedDate']}">
+                                </div>
+                                <div class="invalid-feedback">
+                                    Enter a date valid dd/mm/yyyy
+                                </div>
+                            </div>
+
+                            {$statusRadio}
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Leave a comment here" id="comments" name="comments" >{$previusData['comments']}</textarea>
+                                <label for="comments">Comments</label>
+                            </div>
+                            <input type="submit" class="btn btn-primary col-md-2" value="Update order"/>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    /*Validation of fields for input*/
+                    ( ()=> {
+                    'use strict'
+
+                    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                    var forms = document.querySelectorAll('.needs-validation')
+
+                    // Loop over them and prevent submission
+                    Array.prototype.slice.call(forms)
+                        .forEach( (form) =>{
+                        form.addEventListener('submit',  (event)=> {
+                            if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            }
+
+                            form.classList.add('was-validated')
+                        }, false)
+                        })
+                    })()
+                </script>
+        HTML;
+
+        $pageData = DEFAULT_PAGE_DATA;
+        $pageData['content'] = $content;
+        $pageData['title'] = 'Editing order: #' . $previusData['orderNumber'] . ' - ' . COMPANY_NAME;
+
+        webpage::render($pageData);
     }
     public static function save()
     {
+        $errorMsg = [];
+
+        $orderNumber = checkInput('orderNumber', 11);
+        $customerNumber = checkInput('customerNumber', 11);
+        $orderDate = checkInput('orderDate', 10);
+        $requiredDate = checkInput('requiredDate', 10);
+        $shippedDate = checkInput('shippedDate', 100) === '' ? null : $_POST['shippedDate'];
+        $status = checkInput('status', 15);
+        $comments = checkInput('comments', 65000) === '' ? null : $_POST['comments'];
+
+        if ($orderNumber === '') {
+            $errorMsg = ['Order number:' => 'You must enter a valid value'];
+        }
+
+        if ($customerNumber === '') {
+            $errorMsg = ['Customer:' => 'You must enter a valid value'];
+        } else {
+            $DB = new db_pdo();
+            $params = ['customerNumber' => $customerNumber];
+            $customer = $DB->querySelectParam('SELECT * FROM customers WHERE customerNumber = :customerNumber', $params);
+            if (count($customer) === 0) {
+                $errorMsg = ['Customer number:' => "The customer doesn't exist"];
+            }
+        }
+
+        if ($orderDate === '') {
+            $errorMsg = ['Order Date' => 'You must enter a valid value'];
+        }
+
+        if ($requiredDate === '') {
+            $errorMsg = ['Required Date' => 'You must enter a valid value'];
+        }
+
+        if ($status === '') {
+            $errorMsg = ['status' => 'You must enter a valid value'];
+        }
+
+        $orderData = [
+            'orderNumber' => $orderNumber,
+            'orderDate' => $orderDate,
+            'requiredDate' => $requiredDate,
+            'shippedDate' => $shippedDate,
+            'status' => $status,
+            'comments' => $comments,
+            'customerNumber' => $customerNumber,
+        ];
+
+
+        if ($errorMsg !== []) {
+            header("HTTP/1.0 400");
+            self::edit($errorMsg, $orderData);
+        }
+
+        //SAVE IN DB
+        $DB = new db_pdo();
+        $query =
+            'UPDATE orders
+                SET
+                orderDate = :orderDate,
+                requiredDate = :requiredDate,
+                shippedDate = :shippedDate,
+                status = :status,
+                comments = :comments,
+                customerNumber = :customerNumber
+                WHERE orderNumber = :orderNumber;';
+        $response = $DB->queryParam($query, $orderData);
+
+        if ($response->rowCount() === 1) {
+            self::list('Order was edited', true);
+        } else {
+            self::list("Order couldn't be edited", false);
+        }
     }
 }
