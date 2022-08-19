@@ -42,9 +42,16 @@ const ROUTES = [
     'redirect-amazon' => 51,
     'product-list' => 100,
     'product-cataloge' => 101,
+
     'customers' => 400,
     'customers_json' => 420,
     'products_json' => 120,
+    /*ORDERS */
+    'order_list' => 200,
+    'order_display' => 202,
+    'order_edit' => 203,
+    'order_save' => 205,
+    /*EMPLOYEE */
     'employee_list' => 300,
     'employee-detail' => 302,
     'employee_add' => 303,

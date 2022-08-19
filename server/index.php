@@ -10,6 +10,7 @@ require_once 'products.php';
 require_once 'users.php';
 require_once 'customers.php';
 require_once 'employees.php';
+require_once 'orders.php';
 require_once 'errorPage.php';
 
 function homePage()
@@ -166,6 +167,43 @@ function main()
         case ROUTES['employee_delete']:
             if (isset($_SESSION['email'])) {
                 employees::deleteEmployee();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+
+
+            /* ORDERS */
+        case ROUTES['order_list']:
+            if (isset($_SESSION['email'])) {
+                orders::list();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+        case ROUTES['order_edit']:
+            if (isset($_SESSION['email'])) {
+                orders::edit();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+        case ROUTES['order_display']:
+            if (isset($_SESSION['email'])) {
+                orders::display();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+        case ROUTES['order_save']:
+            if (isset($_SESSION['email'])) {
+                orders::save();
             } else {
                 header('HTTP/1.0 401 Must login, you are not authorized');
                 users::login('You are not authorized, please enter your credentials');

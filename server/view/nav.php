@@ -17,8 +17,11 @@
         $optionCustomers = ROUTES['customers'];
         $optionLogout = ROUTES['logout'];
         $optionEmployees = ROUTES['employee_list'];
+        $optionOrders = ROUTES['order_list'];
+
         echo "<a href='index.php?op=$optionEmployees'>Employees</a> | ";
-        echo "<a href='index.php?op=$optionCustomers'>Customers</a> | ";
+        echo "<a href='index.php?op=$optionEmployees'>Employees</a> | ";
+        echo "<a href='index.php?op=$optionOrders'>Orders</a> | ";
         echo "<a href='index.php?op=$optionLogout'>Logout</a> | ";
         echo "<b>" . $_SESSION['email'] . "</b> | ";
         echo "<img class='avatar' src='" . USER_IMAGES . DIRECTORY_SEPARATOR . $_SESSION['picture'] . "' /> |";
