@@ -115,6 +115,8 @@ function main()
             }
             break;
 
+
+
             /**EMPLOYEES */
 
         case ROUTES['employee_list']:
@@ -155,6 +157,15 @@ function main()
         case ROUTES['employee_register_verify']:
             if (isset($_SESSION['email'])) {
                 employees::registrerVerify();
+            } else {
+                header('HTTP/1.0 401 Must login, you are not authorized');
+                users::login('You are not authorized, please enter your credentials');
+            }
+            break;
+
+        case ROUTES['employee_delete']:
+            if (isset($_SESSION['email'])) {
+                employees::deleteEmployee();
             } else {
                 header('HTTP/1.0 401 Must login, you are not authorized');
                 users::login('You are not authorized, please enter your credentials');

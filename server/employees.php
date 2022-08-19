@@ -37,6 +37,7 @@ class employees
             $bossNumber = $employee['reportsTo'];
             $fullnameBoss = $employee['firstNameBoss'] . ' ' . $employee['lastNameBoss'];
             $jobTitle = $employee['jobTitle'];
+
             $table_body .= <<<HTML
                 <tr>
                     <th scope="row" header="number" class="table-danger"><a href='index.php?op=302&employeeNumber={$number}'>{$number}</a></th>
@@ -371,8 +372,10 @@ class employees
         VALUES (:employeeNumber, :firstName, :lastName, :extension, :email, :officeCode, :reportsTo, :jobTitle);';
         $response = $DB->queryParam($query, $data);
         if ($response->rowCount() === 1) {
-            http_response_code(201);
-            header("location: index.php?op=" . ROUTES['employee-detail'] . "&employeeNumber=" . $data['employeeNumber']);
+            header('HTTP/1.0 201');
+            $route = ROUTES['employee-detail'];
+            $idEmployee = $data['employeeNumber'];
+            header("location: index.php?op=$route&employeeNumber=$idEmployee");
         } else {
             displayError('Employee could not be created', 400);
         }
@@ -394,7 +397,6 @@ class employees
         $response = $DB->queryParam($query, $data);
         if ($response->rowCount() === 1) {
             header("location: index.php?op=" . ROUTES['employee-detail'] . "&employeeNumber=" . $data['employeeNumber']);
-            echo "entro";
         } else {
             displayError("Employee could not be edited the employee.", 400);
         }
@@ -410,11 +412,21 @@ class employees
 
         $content = <<<HTML
             <div class="card m-4">
-                <h5 class="card-header"><b>#{$employee['employeeNumber']}</b> | {$fullname}</h5>
+                <h5 class="card-header text-center"><b>#{$employee['employeeNumber']}</b> | {$fullname}</h5>
                 <div class="card-body">
-                    <h5 class="card-title">Special title treatment</h5>
-                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <div>
+                        <i class='fas fa-phone'></i> {$employee['extension']}
+                    </div>
+                    <div>
+                        <i class='fas fa-mail-bulk'></i> <a href="mailto:{$employee['email']}">{$employee['email']}</a>
+                    </div>
+                    <div class=''>
+                        <i class="material-icons">computer</i> {$employee['jobTitle']}
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-row justify-content-around">
+                    <a href="index.php?op=&employeeNumber=" class="btn btn-primary">Edit</a>
+                    <a href="index.php?op=&employeeNumber=" class="btn btn-danger">Delete</a>
                 </div>
             </div>
         HTML;
@@ -427,6 +439,22 @@ class employees
         webpage::render($pageData);
     }
 
+    public static function deleteEmployee()
+    {
+        if (!isset($_GET['employeeNumber'])) {
+            header('location: index.php?op=300');
+        }
+        $DB = new db_pdo();
+        $params = ['employeeNumber' => $_GET['employeeNumber']];
+        $response = $DB->queryParam('DELETE FROM employees WHERE employeeNumber = :employeeNumber', $params);
+
+        if ($response->rowCount() === 1) {
+            header("location: index.php?op=" . ROUTES['employee_list']);
+        } else {
+            displayError("Couldn't delete this employee", 409);
+        }
+    }
+
     public static function employeesJsonList()
     {
         $DB = new db_pdo();
@@ -436,7 +464,7 @@ class employees
             ON boss.employeeNumber = emp.reportsTo;");
         $employees = json_encode($employees, JSON_PRETTY_PRINT);
         header('Content-Type: application/json; charset:UTF-8');
-        http_response_code(200);
+        header('HTTP/1.0 200');
         echo $employees;
     }
 

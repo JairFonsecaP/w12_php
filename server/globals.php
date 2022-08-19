@@ -48,6 +48,7 @@ const ROUTES = [
     'employee_list' => 300,
     'employee-detail' => 302,
     'employee_add' => 303,
-    'employee_register_verify' => 304,
+    'employee_delete' => 304,
+    'employee_register_verify' => 305,
     'employee-listJSON' => 320,
 ];
