@@ -18,8 +18,6 @@
         $optionLogout = ROUTES['logout'];
         $optionEmployees = ROUTES['employee_list'];
         $optionOrders = ROUTES['order_list'];
-
-        echo "<a href='index.php?op=$optionEmployees'>Employees</a> | ";
         echo "<a href='index.php?op=$optionEmployees'>Employees</a> | ";
         echo "<a href='index.php?op=$optionOrders'>Orders</a> | ";
         echo "<a href='index.php?op=$optionLogout'>Logout</a> | ";

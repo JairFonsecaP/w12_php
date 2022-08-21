@@ -45,6 +45,7 @@ function homePage()
 
 function main()
 {
+    logVisitor();
     $op = ROUTES['default'];
 
     if (isset($_REQUEST['op'])) {

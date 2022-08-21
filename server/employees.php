@@ -38,6 +38,19 @@ class employees
             $fullnameBoss = $employee['firstNameBoss'] . ' ' . $employee['lastNameBoss'];
             $jobTitle = $employee['jobTitle'];
 
+            $DB = new db_pdo();
+            $params = ['employeeNumber' => $number];
+            $result = $DB->querySelectParam('SELECT emp.employeeNumber FROM employees emp
+                                                INNER JOIN employees boss
+                                                ON boss.employeeNumber = emp.reportsTo
+                                                WHERE boss.employeeNumber = :employeeNumber;', $params);
+
+            $delete = '<button type="button" class="btn btn-link" style="text-decoration: none;color:red;width: 10px"  data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="{$number}"><i class="material-icons">delete_forever</i></button>';
+
+            if (count($result) > 0) {
+                $delete = '';
+            }
+
             $table_body .= <<<HTML
                 <tr>
                     <th scope="row" header="number" class="table-danger"><a href='index.php?op=302&employeeNumber={$number}'>{$number}</a></th>
@@ -49,16 +62,33 @@ class employees
                     <td header="postalCode office"  class="table-primary">{$postalCode}</td>
                     <td header="city office"  class="table-primary">{$city}</td>
                     <td header="state office"  class="table-primary">{$state}</td>
-                    <td header="bossNumber boss" class="table-success"><a href='index.php?op=302&employeeNumber={$number}'>{$bossNumber}</a></td>
+                    <td header="bossNumber boss" class="table-success"><a href='index.php?op=302&employeeNumber={$bossNumber}'>{$bossNumber}</a></td>
                     <td header="bossName boss" class="table-success">{$fullnameBoss}</td>
-                    <td header="edit action" class="table-warning text-center"><a style="text-decoration: none;color:gray" href="index.php?op=303&employeeNumber={$number}"><i class='fas fa-user-edit'></i></a></td>
-                    <td header="delete action" class="table-warning text-center"><a style="text-decoration: none;color:red" href="index.php?op=304&employeeNumber={$number}"><i class="material-icons">delete_forever</i></a></td>
+                    <td header="edit action" class="table-warning text-center"><button type="button" class="btn btn-link" style="text-decoration: none;color:gray; width: 10px" href="index.php?op=303&employeeNumber={$number}"><i class='fas fa-user-edit'></i></button></td>
+                    <td header="delete action" class="table-warning text-center">{$delete}</td>
                 </tr>
             HTML;
         }
 
         $showAllOp = ROUTES['employee_list'];
         $content = <<<HTML
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body alert alert-danger">
+                            Are you sure?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        <div id="deleteButton"></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
             <div class="card m-2">
                 <div class="card-body">
                     <form class="row g-3 m-2" method="GET" action="index.php">
@@ -109,6 +139,28 @@ class employees
                     </table>
                 </div>
             </div>
+            <script>
+                const exampleModal = document.getElementById('exampleModal')
+                    exampleModal.addEventListener('show.bs.modal', event => {
+                    // Button that triggered the modal
+                    const button = event.relatedTarget;
+                    // Extract info from data-bs-* attributes
+                    const recipient = button.getAttribute('data-bs-whatever');
+                    // If necessary, you could initiate an AJAX request here
+                    // and then do the updating in a callback.
+                    //
+                    // Update the modal's content.
+                    const modalTitle = exampleModal.querySelector('.modal-title');
+                    const modalBodyInput = exampleModal.querySelector('.modal-body input');
+                    let deleteButton=  exampleModal.querySelector('#deleteButton');
+
+                    deleteButton.innerHTML = `<a type="button" class="btn btn-danger" href="index.php?op=304&employeeNumber=`+recipient+`">Delete</a>`;
+
+                    modalTitle.textContent = `Delete to ` + recipient;
+                    //modalBodyInput.value = recipient;
+                    });
+
+            </script>
         HTML;
 
         $pageData['content'] = $content;
@@ -117,6 +169,7 @@ class employees
 
     public static function registrer(array $previusData = [], array $errors = [])
     {
+
         $pageData = DEFAULT_PAGE_DATA;
         $PageData['description'] = 'Registration of new user';
         $pageData['title'] = "New employee - " . COMPANY_NAME;
@@ -271,8 +324,9 @@ class employees
                             </div>
                             {$bossSelect}
                             {$officesSelect}
-                            <div class="col-12">
-                                <button class="btn btn-primary" type="submit">Save</button>
+                            <div class="col-12 d-flex justify-content-evenly">
+                                <button class="btn btn-success" type="submit">Save</button>
+                                <button class="btn btn-primary" type="button" onclick="history.back()" >Return</button>
                             </div>
                         </form>
                     </div>
@@ -371,11 +425,9 @@ class employees
         $query = 'INSERT INTO employees (employeeNumber ,firstname, lastname, extension, email, officeCode, reportsTo, jobTitle)
         VALUES (:employeeNumber, :firstName, :lastName, :extension, :email, :officeCode, :reportsTo, :jobTitle);';
         $response = $DB->queryParam($query, $data);
+
         if ($response->rowCount() === 1) {
-            header('HTTP/1.0 201');
-            $route = ROUTES['employee-detail'];
-            $idEmployee = $data['employeeNumber'];
-            header("location: index.php?op=$route&employeeNumber=$idEmployee");
+            header("location: index.php?op=" . ROUTES['employee-detail'] . "&employeeNumber=" . $data['employeeNumber']);
         } else {
             displayError('Employee could not be created', 400);
         }
@@ -407,28 +459,132 @@ class employees
         if (!isset($_GET['employeeNumber'])) {
             header('location: index.php?op=300');
         }
-        $employee = self::getEmployeeByNumber($_GET['employeeNumber'])[0];
+
+
+        $employee = self::getEmployeeByNumber($_GET['employeeNumber']);
+        if (!isset($employee[0])) {
+            displayError('Employee not found', 404);
+        }
+        $employee = $employee[0];
         $fullname = $employee['firstName'] . " " . $employee['lastName'];
+
+        $optionEdit = ROUTES['employee_add'];
+        $optionDelete = ROUTES['employee_delete'];
+        $employeeNumber = $employee['employeeNumber'];
+
+        if (isset($employee['reportsTo'])) {
+            $employee['reportsTo'] = "#" . $employee['reportsTo'];
+        } else {
+            $employee['reportsTo'] = "Nobody";
+            $employee['fullnameBoss'] = "";
+        }
+
+        $DB = new db_pdo();
+        $params = ['employeeNumber' => $employeeNumber];
+        $employees = $DB->querySelectParam('SELECT emp.employeeNumber, emp.firstName, emp.lastName, emp.email, emp.officeCode FROM employees emp
+                                                INNER JOIN employees boss
+                                                ON boss.employeeNumber = emp.reportsTo
+                                                WHERE boss.employeeNumber = :employeeNumber;', $params);
+        $table = '<div class="alert alert-success mt-4" role="alert">
+                    Nobody reports to: ' . $fullname . '
+                </div>';
+        $deleteButton = '<button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#exampleModal">Delete</button>';
+
+        if (count($employees) > 0) {
+            $tb = '';
+            foreach ($employees as $e) {
+                $tb .= <<<HTML
+                <tr>
+                    <th><a href="index.php?op=302&employeeNumber={$e['employeeNumber']}">{$e['employeeNumber']}</a></th>
+                    <td>{$e['firstName']} {$e['lastName']}</td>
+                    <td><a href="mailto:{$e['email']}">{$e['email']}</a></td>
+                    <td>{$e['officeCode']}</td>
+                </tr>
+            HTML;
+            }
+
+            $table = <<<HTML
+                <table class="table table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th colspan="4" class="text-center">Employees reporting to: {$fullname}</th>
+                        </tr>
+                        <tr>
+                            <th>Employee Number</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Office Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {$tb}
+                    </tbody>
+                </table>
+            HTML;
+
+            $deleteButton = '';
+        }
 
         $content = <<<HTML
             <div class="card m-4">
-                <h5 class="card-header text-center"><b>#{$employee['employeeNumber']}</b> | {$fullname}</h5>
-                <div class="card-body">
-                    <div>
-                        <i class='fas fa-phone'></i> {$employee['extension']}
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Delete to  {$employeeNumber}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div>
-                        <i class='fas fa-mail-bulk'></i> <a href="mailto:{$employee['email']}">{$employee['email']}</a>
+                    <div class="modal-body alert alert-danger">
+                            Are you sure?
                     </div>
-                    <div class=''>
-                        <i class="material-icons">computer</i> {$employee['jobTitle']}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        <a type="button" class="btn btn-danger" href="index.php?op={$optionDelete}&employeeNumber={$employeeNumber}">Delete</a>
                     </div>
-                </div>
-                <div class="card-body d-flex flex-row justify-content-around">
-                    <a href="index.php?op=&employeeNumber=" class="btn btn-primary">Edit</a>
-                    <a href="index.php?op=&employeeNumber=" class="btn btn-danger">Delete</a>
+                    </div>
                 </div>
             </div>
+                <h5 class="card-header text-center"> <b>#{$employee['employeeNumber']}</b> | {$fullname}</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <i class="material-icons">computer</i> <b>Job title:</b> {$employee['jobTitle']}
+                        </div>
+                        <div class="col">
+                            <i class='fas fa-phone'></i> <b>Extension:</b> {$employee['extension']}
+                        </div>
+                        <div class="col">
+                            <i class='fas fa-mail-bulk'></i> <b>Email:</b> <a href="mailto:{$employee['email']}">{$employee['email']}</a>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col">
+                            <i class='fas fa-home'></i> <b>Office Code:</b> {$employee['officeCode']} <b>Office Postal Code:</b>{$employee['postalCode']}
+                        </div>
+                        <div class="col">
+                            <i class='fas fa-users'></i><b>Reports to:</b> {$employee['reportsTo']}
+                        </div>
+                        <div class="col">
+                             {$employee['fullnameBoss']}
+                        </div>
+                    </div>
+                    {$table}
+                </div>
+                <div class="card-body d-flex flex-row justify-content-around">
+                    <a type="button" class="btn btn-secondary" href="index.php?op=300"><- View all</a>
+                    <a href="index.php?op={$optionEdit}&employeeNumber={$employeeNumber}" class="btn btn-primary">Edit</a>
+                    {$deleteButton}
+                </div>
+            </div>
+            <script>
+                const exampleModal = document.getElementById('exampleModal')
+                    exampleModal.addEventListener('show.bs.modal', event => {
+                    // Button that triggered the modal
+                    const button = event.relatedTarget;
+
+                    });
+            </script>
         HTML;
 
         $pageData = DEFAULT_PAGE_DATA;
