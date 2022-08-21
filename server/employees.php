@@ -45,7 +45,7 @@ class employees
                                                 ON boss.employeeNumber = emp.reportsTo
                                                 WHERE boss.employeeNumber = :employeeNumber;', $params);
 
-            $delete = '<button type="button" class="btn btn-link" style="text-decoration: none;color:red;width: 10px"  data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="{$number}"><i class="material-icons">delete_forever</i></button>';
+            $delete = '<button type="button" class="btn btn-link" style="text-decoration: none;color:red;width: 10px"  data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="' . $number . '"><i class="material-icons">delete_forever</i></button>';
 
             if (count($result) > 0) {
                 $delete = '';
